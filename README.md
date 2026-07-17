@@ -46,3 +46,40 @@ Consume the endpoint response's `primary_source`, `secondary_sources`, `confiden
 ## Explanation Generator
 
 `POST /api/v1/explanations` accepts the same evidence bundle and returns a short headline, a plain-language summary, and the weighted evidence supporting the primary source. This endpoint lets the dashboard explain *why* the source was selected rather than presenting a score alone.
+
+## Geo Master Foundation
+
+Member 1 owns the independent `geo_master` backend module for city and spatial reference data. It defines SQLAlchemy models, Pydantic schemas, repositories, services, migration SQL, and seeded demo data for:
+
+- cities
+- wards with PostGIS polygon boundaries
+- monitoring stations with latitude/longitude and point geometry
+- road segments with line geometry
+- land-use zones with polygon boundaries
+
+### Spatial operations
+
+Reusable functions live under `backend/app/geo_master`:
+
+- `GeoMasterService.find_ward_containing_point(point)` uses PostGIS `ST_Contains`.
+- `GeoMasterService.find_entities_within_radius(entity_type, point, radius_meters)` uses `ST_DWithin` and orders by distance.
+- `GeoMasterService.calculate_distance_meters(origin, destination)` uses the repository-backed `ST_DistanceSphere` when a database is available, with a pure Haversine helper available as `calculate_distance_meters` for tests and offline workflows.
+
+### Apply the geo database foundation
+
+Use PostgreSQL with PostGIS enabled, then apply:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/001_geo_master.sql
+```
+
+The migration creates GiST indexes on all geometry columns for containment, radius, and distance queries.
+
+### Seed Bengaluru demo geo data
+
+```powershell
+cd backend
+python -m scripts.seed_geo_master
+```
+
+Set `DATABASE_URL` before running the seed script if your PostgreSQL connection is not `postgresql+psycopg://postgres:postgres@localhost:5432/aerointel`.
