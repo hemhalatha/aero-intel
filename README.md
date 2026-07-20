@@ -272,3 +272,18 @@ FastAPI routes:
 - `GET /api/v1/hotspots/{hotspot_id}/events`
 
 This module does not perform investigation, attribution, recommendations, forecasting, fingerprinting, or intervention verification.
+
+## Investigation Orchestrator
+
+`backend/app/investigations` provides an event-driven investigation orchestration module. When a `hotspot.created` event is received, it creates or resumes an investigation for that hotspot, captures environmental context, runs all enabled evidence collectors independently, records collector run status and failures, stores successful evidence items immediately, and preserves partial results when another collector fails.
+
+The orchestrator publishes investigation-local event records for `evidence.collected` as each evidence item is stored and `investigation.initial_collection_completed` after a collection pass. It marks investigations as `COMPLETE`, `PARTIALLY_COMPLETE`, or `WAITING_FOR_EVIDENCE` based on collector outcomes. Additional evidence requests reuse the existing investigation record instead of restarting the workflow.
+
+FastAPI routes:
+
+- `POST /api/v1/investigations/events/hotspot-created`
+- `GET /api/v1/investigations?status=COMPLETE`
+- `GET /api/v1/investigations/{investigation_id}`
+- `POST /api/v1/investigations/{investigation_id}/evidence-requests`
+
+Collectors implement the common `EvidenceCollector` interface and return normalized `CollectorResult` DTOs. This module does not perform source attribution, recommendations, forecasting, fingerprinting, or intervention verification.
