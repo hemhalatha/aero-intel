@@ -185,6 +185,8 @@ class InvestigationOrchestrator:
                             observed_at=result.observed_at,
                             collected_at=timestamp,
                             confidence=result.confidence,
+                            data_quality_score=result.data_quality_score,
+                            checked_at=result.observed_at,
                         )
                     )
                     self._publish_event(

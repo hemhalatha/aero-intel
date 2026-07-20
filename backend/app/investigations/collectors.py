@@ -15,6 +15,7 @@ class CollectorResult(BaseModel):
     source_type: str = "controlled_demo"
     detected: bool = True
     support_direction: SupportDirection = "NEUTRAL"
+    data_quality_score: float = Field(default=1.0, ge=0, le=1)
 
 
 class EvidenceCollector(Protocol):

@@ -74,12 +74,44 @@ class EvidenceItem(Base):
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     collected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    data_quality_score: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     investigation: Mapped[Investigation] = relationship(back_populates="evidence_items")
 
     __table_args__ = (
         Index("idx_evidence_items_investigation_collected", "investigation_id", "collected_at"),
         Index("idx_evidence_items_source", "source"),
+        Index("idx_evidence_items_investigation_source_type", "investigation_id", "source_type"),
+        Index("idx_evidence_items_investigation_support", "investigation_id", "support_direction"),
+    )
+
+
+class EvidenceItemVersion(Base):
+    __tablename__ = "evidence_item_versions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    evidence_id: Mapped[int] = mapped_column(ForeignKey("evidence_items.id", ondelete="CASCADE"), nullable=False)
+    investigation_id: Mapped[int] = mapped_column(ForeignKey("investigations.id", ondelete="CASCADE"), nullable=False)
+    version_number: Mapped[int] = mapped_column(nullable=False)
+    collector_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    evidence_type: Mapped[str] = mapped_column(String(120), nullable=False)
+    source: Mapped[str] = mapped_column(String(120), nullable=False)
+    detected: Mapped[bool] = mapped_column(nullable=False)
+    support_direction: Mapped[str] = mapped_column(String(20), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    collected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    data_quality_score: Mapped[float] = mapped_column(Float, nullable=False)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    change_reason: Mapped[str | None] = mapped_column(String(240))
+
+    __table_args__ = (
+        Index("idx_evidence_item_versions_evidence_version", "evidence_id", "version_number"),
+        Index("idx_evidence_item_versions_investigation", "investigation_id"),
     )
 
 

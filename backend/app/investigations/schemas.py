@@ -57,6 +57,8 @@ class EvidenceItemRecord(BaseModel):
     observed_at: datetime
     collected_at: datetime
     confidence: float = Field(ge=0, le=1)
+    data_quality_score: float = Field(default=1.0, ge=0, le=1)
+    checked_at: datetime | None = None
 
 
 class InvestigationEventRecord(BaseModel):

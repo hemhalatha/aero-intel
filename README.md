@@ -288,6 +288,39 @@ FastAPI routes:
 
 Collectors implement the common `EvidenceCollector` interface and return normalized `CollectorResult` DTOs. This module does not perform source attribution, recommendations, forecasting, fingerprinting, or intervention verification.
 
+
+## Common Evidence Repository
+
+`backend/app/investigations/evidence.py` provides the shared evidence access layer that downstream modules should use instead of reading collector-specific tables directly. It standardizes every evidence item with evidence ID, investigation ID, source type, evidence type, detected flag, confidence, support direction, raw supporting details, data-quality score, collector name, checked timestamp, source, and collected timestamp.
+
+Service methods:
+
+- `get_investigation_evidence(investigation_id, source_type=None, evidence_type=None)`
+- `get_supporting_evidence(investigation_id)`
+- `get_contradictory_evidence(investigation_id)`
+- `get_evidence_by_type(investigation_id, evidence_type)`
+- `add_followup_evidence(evidence)`
+- `update_evidence(evidence_id, update, reason=None)`
+- `get_evidence_versions(evidence_id)`
+
+FastAPI routes are mounted under `/api/v1/investigations`:
+
+- `GET /{investigation_id}/evidence?source_type=traffic&evidence_type=traffic.density_anomaly`
+- `GET /{investigation_id}/evidence/supporting`
+- `GET /{investigation_id}/evidence/contradictory`
+- `GET /{investigation_id}/evidence/types/{evidence_type}`
+- `POST /{investigation_id}/evidence`
+- `PATCH /evidence/{evidence_id}`
+- `GET /evidence/{evidence_id}/versions`
+
+Evidence updates preserve the previous evidence snapshot in `evidence_item_versions`, keeping later Pollution Fingerprint, Evidence Graph, Attribution, and Next Best Evidence modules insulated from collector-specific schemas while retaining audit history.
+
+Apply the common evidence migration after the investigation tables are available:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/006_common_evidence_repository.sql
+```
+
 ## Traffic Evidence Collector
 
 `backend/app/investigations/traffic.py` provides an independent traffic evidence collector for hotspot investigations. It identifies nearby road segments, retrieves current traffic density, compares against historical traffic baselines for comparable hours, calculates density deviation, checks rush-hour correlation, evaluates road proximity, optionally enriches evidence with NO2 and CO patterns from environmental readings, and returns a standardized evidence object.

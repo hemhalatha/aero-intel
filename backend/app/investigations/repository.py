@@ -145,6 +145,8 @@ class InvestigationRepository:
             "observed_at": evidence.observed_at,
             "collected_at": evidence.collected_at,
             "confidence": evidence.confidence,
+            "data_quality_score": evidence.data_quality_score,
+            "checked_at": evidence.checked_at or evidence.collected_at,
         }
 
     @staticmethod
@@ -202,6 +204,8 @@ class InvestigationRepository:
             observed_at=row.observed_at,
             collected_at=row.collected_at,
             confidence=row.confidence,
+            data_quality_score=row.data_quality_score,
+            checked_at=row.checked_at,
         )
 
     @staticmethod
