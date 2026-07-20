@@ -126,3 +126,38 @@ class EnvironmentalIngestionBatch(BaseModel):
     controlled_scenarios: list[ControlledScenarioDTO] = Field(default_factory=list)
     used_fallback: bool = False
     errors: list[str] = Field(default_factory=list)
+
+
+DataQualityStatus = Literal["valid", "suspect", "incomplete"]
+
+
+class NormalizedAirQualityReading(BaseModel):
+    source_code: str
+    provider: str
+    external_station_id: str
+    station_code: str
+    station_name: str
+    city: str
+    state: str
+    ward_code: str | None = None
+    observed_at: datetime
+    pollutant: str
+    value: float = Field(ge=0)
+    unit: str
+    averaging_period: str = "15min"
+    data_quality_status: DataQualityStatus
+    raw_payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class RejectedEnvironmentalRecord(BaseModel):
+    provider: str
+    external_station_id: str | None = None
+    observed_at: datetime | None = None
+    pollutant: str | None = None
+    reason: str
+    raw_payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class EnvironmentalNormalizationResult(BaseModel):
+    accepted_air_quality_readings: list[NormalizedAirQualityReading] = Field(default_factory=list)
+    rejected_records: list[RejectedEnvironmentalRecord] = Field(default_factory=list)

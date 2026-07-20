@@ -37,7 +37,9 @@ class AirQualityReading(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     source_id: Mapped[int] = mapped_column(ForeignKey("env_data_sources.id", ondelete="RESTRICT"), nullable=False)
     station_code: Mapped[str] = mapped_column(String(80), nullable=False)
+    external_station_id: Mapped[str | None] = mapped_column(String(120))
     station_name: Mapped[str] = mapped_column(String(180), nullable=False)
+    ward_code: Mapped[str | None] = mapped_column(String(40))
     city: Mapped[str] = mapped_column(String(120), nullable=False)
     state: Mapped[str] = mapped_column(String(120), nullable=False)
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -45,6 +47,7 @@ class AirQualityReading(Base):
     value: Mapped[float] = mapped_column(Float, nullable=False)
     unit: Mapped[str] = mapped_column(String(40), nullable=False)
     averaging_period: Mapped[str] = mapped_column(String(40), nullable=False)
+    data_quality_status: Mapped[str] = mapped_column(String(40), nullable=False, default="valid")
     raw_payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
@@ -106,4 +109,23 @@ class ControlledScenario(Base):
     __table_args__ = (
         Index("idx_env_controlled_scenarios_window", "starts_at", "ends_at"),
         Index("idx_env_controlled_scenarios_category", "category"),
+    )
+
+
+
+class RejectedEnvironmentalRecordLog(Base):
+    __tablename__ = "env_rejected_records"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    provider: Mapped[str] = mapped_column(String(80), nullable=False)
+    external_station_id: Mapped[str | None] = mapped_column(String(120))
+    observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    pollutant: Mapped[str | None] = mapped_column(String(40))
+    reason: Mapped[str] = mapped_column(String(120), nullable=False)
+    raw_payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        Index("idx_env_rejected_records_provider_reason", "provider", "reason"),
+        Index("idx_env_rejected_records_observed", "observed_at"),
     )

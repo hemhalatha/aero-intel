@@ -1,11 +1,19 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .models import AirQualityReading, ControlledScenario, EnvironmentalDataSource, WeatherObservation
+from .models import (
+    AirQualityReading,
+    ControlledScenario,
+    EnvironmentalDataSource,
+    RejectedEnvironmentalRecordLog,
+    WeatherObservation,
+)
 from .schemas import (
     AirQualityReadingSeed,
     ControlledScenarioSeed,
     EnvironmentalDataSourceSeed,
+    NormalizedAirQualityReading,
+    RejectedEnvironmentalRecord,
     WeatherObservationSeed,
 )
 
@@ -41,6 +49,42 @@ class EnvironmentalDataRepository:
         )
         if exists is None:
             self.db.add(AirQualityReading(source_id=source_id, **reading.model_dump(exclude={"source_code"})))
+
+    def insert_normalized_air_quality_reading_if_missing(
+        self,
+        reading: NormalizedAirQualityReading,
+        source_id: int,
+    ) -> None:
+        exists = self.db.scalar(
+            select(AirQualityReading.id).where(
+                AirQualityReading.station_code == reading.station_code,
+                AirQualityReading.observed_at == reading.observed_at,
+                AirQualityReading.pollutant == reading.pollutant,
+                AirQualityReading.source_id == source_id,
+            )
+        )
+        if exists is None:
+            self.db.add(
+                AirQualityReading(
+                    source_id=source_id,
+                    station_code=reading.station_code,
+                    external_station_id=reading.external_station_id,
+                    station_name=reading.station_name,
+                    ward_code=reading.ward_code,
+                    city=reading.city,
+                    state=reading.state,
+                    observed_at=reading.observed_at,
+                    pollutant=reading.pollutant,
+                    value=reading.value,
+                    unit=reading.unit,
+                    averaging_period=reading.averaging_period,
+                    data_quality_status=reading.data_quality_status,
+                    raw_payload=reading.raw_payload,
+                )
+            )
+
+    def log_rejected_record(self, record: RejectedEnvironmentalRecord) -> None:
+        self.db.add(RejectedEnvironmentalRecordLog(**record.model_dump()))
 
     def insert_weather_observation_if_missing(
         self,

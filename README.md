@@ -135,3 +135,25 @@ Available adapters:
 - `SeededEnvironmentalDataAdapter` maps `backend/data/environmental_seed.json` into the same DTOs for reliable local demos.
 
 Use `EnvironmentalIngestionService(primary_adapters=[...], fallback_adapter=SeededEnvironmentalDataAdapter())` to try live providers first and gracefully fall back to seeded data when external APIs fail. The fallback batch is marked with `used_fallback = True` and includes provider error messages for observability without breaking demos.
+
+## Environmental Data Normalization
+
+`backend/app/environmental_data/normalization.py` converts provider-independent ingestion DTOs into repository-ready records before storage.
+
+Normalization responsibilities:
+
+- converts all reading timestamps to UTC
+- validates pollutant names and values
+- rejects impossible negative pollutant values
+- handles missing pollutant names or values by logging rejected records
+- prevents duplicate readings within a batch using station, timestamp, pollutant, and source
+- maps external provider station IDs to internal station codes with `StationMapping`
+- attaches ward codes through an injected resolver, including `GeoMasterWardResolver` for PostGIS-backed lookups
+- assigns `data_quality_status` as `valid`, `suspect`, or `incomplete`
+- returns `EnvironmentalNormalizationResult` with accepted `NormalizedAirQualityReading` records and rejected `RejectedEnvironmentalRecord` logs
+
+Apply the normalization migration after the environmental data migration:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/003_environmental_normalization.sql
+```
