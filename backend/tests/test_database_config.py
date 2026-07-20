@@ -32,3 +32,17 @@ def test_safe_database_url_masks_password() -> None:
 
     assert masked == "postgresql+psycopg://postgres:***@127.0.0.1:5432/aerointel"
     assert "super-secret" not in masked
+
+def test_database_health_endpoint_reports_configuration_error(monkeypatch) -> None:
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setattr(database, "ENV_FILES", ())
+
+    response = TestClient(app).get("/health/database")
+
+    assert response.status_code == 503
+    assert response.json()["status"] == "error"
+    assert "DATABASE_URL is not configured" in response.json()["detail"]

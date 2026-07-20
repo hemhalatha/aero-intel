@@ -6,7 +6,13 @@ from sqlalchemy.exc import OperationalError
 
 from .attribution import attribute_sources, generate_explanation
 from .command_center.routes import router as command_center_router
-from .database import DatabaseConfigurationError, DatabaseConnectionError, _diagnose_operational_error, safe_database_url
+from .database import (
+    DatabaseConfigurationError,
+    DatabaseConnectionError,
+    check_database_connection,
+    get_database_url,
+    _diagnose_operational_error,
+)
 from .environmental_data.routes import router as environmental_data_router
 from .heatmap.routes import router as heatmap_router
 from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
@@ -60,13 +66,20 @@ async def sqlalchemy_operational_exception_handler(
 ) -> JSONResponse:
     return JSONResponse(
         status_code=503,
-        content={"detail": _diagnose_operational_error(exc, safe_database_url())},
+        content={"detail": _diagnose_operational_error(exc, get_database_url())},
     )
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "module": "aerointel"}
 
 
+
+@app.get("/health/database")
+def database_health_check() -> JSONResponse:
+    try:
+        return JSONResponse(status_code=200, content=check_database_connection())
+    except (DatabaseConfigurationError, DatabaseConnectionError) as exc:
+        return JSONResponse(status_code=503, content={"status": "error", "detail": str(exc)})
 @app.post("/api/v1/attributions", response_model=AttributionResponse, status_code=201)
 def create_attribution(bundle: EvidenceBundle) -> AttributionResponse:
     rankings = attribute_sources(bundle)
