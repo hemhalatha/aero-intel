@@ -120,3 +120,22 @@ python -m scripts.seed_environmental_data
 ```
 
 The environmental seed is idempotent: sources and controlled scenarios are upserted, while readings are inserted only when the station/location, timestamp, pollutant, and source combination is missing.
+
+## Provider-Independent Environmental Ingestion
+
+`backend/app/environmental_data/adapters.py` keeps external provider formats out of the rest of AeroIntel. Application code should consume common DTOs only:
+
+- `AirQualityReadingDTO`
+- `WeatherObservationDTO`
+- `WindObservationDTO`
+- `ControlledScenarioDTO`
+- `EnvironmentalIngestionBatch`
+
+Available adapters:
+
+- `OpenAQReadingsAdapter` maps OpenAQ-style station measurement responses into AQ DTOs.
+- `OpenMeteoWeatherAdapter` maps Open-Meteo historical weather responses into weather DTOs.
+- `OpenMeteoWindAdapter` maps the same Open-Meteo response shape into wind DTOs.
+- `SeededEnvironmentalDataAdapter` maps `backend/data/environmental_seed.json` into the same DTOs for reliable local demos.
+
+Use `EnvironmentalIngestionService(primary_adapters=[...], fallback_adapter=SeededEnvironmentalDataAdapter())` to try live providers first and gracefully fall back to seeded data when external APIs fail. The fallback batch is marked with `used_fallback = True` and includes provider error messages for observability without breaking demos.
