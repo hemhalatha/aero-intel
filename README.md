@@ -219,3 +219,22 @@ The CPCB AQI bands live in `backend/app/aqi/config.py` as configuration, not dup
 - health severity category
 
 The default CPCB bands cover `0-500` and reject negative or out-of-range values explicitly.
+
+## AQI Spatial Heatmap Service
+
+`backend/app/heatmap` generates a Leaflet/Mapbox-ready AQI pollution layer from latest monitoring-station coordinates and AQI readings. The current implementation uses Inverse Distance Weighting through `IDWInterpolator`, which implements an interpolation interface so Kriging or satellite-ground fusion can replace it later without changing the API.
+
+Features:
+
+- configurable grid resolution
+- requested map bounding boxes
+- ward-level average AQI summaries
+- exclusion or reduced weighting for unhealthy sensors
+- GeoJSON FeatureCollection output for map clients
+
+FastAPI routes:
+
+- `GET /api/v1/heatmap/current`
+- `GET /api/v1/heatmap/wards`
+
+The repository gathers latest AQI readings, station coordinates, and sensor-health reliability metadata. The service only creates spatial visualization data; it does not perform hotspot detection, attribution, escalation, or forecasting.

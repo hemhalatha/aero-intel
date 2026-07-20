@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .attribution import attribute_sources, generate_explanation
 from .environmental_data.routes import router as environmental_data_router
+from .heatmap.routes import router as heatmap_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
 
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(environmental_data_router)
+app.include_router(heatmap_router)
 app.include_router(sensor_health_router)
 
 
