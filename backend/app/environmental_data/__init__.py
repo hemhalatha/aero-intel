@@ -9,6 +9,8 @@ from .adapters import (
     SeededEnvironmentalDataAdapter,
 )
 from .normalization import EnvironmentalDataNormalizer, GeoMasterWardResolver, StationMapping, StaticWardResolver
+from .time_series import EnvironmentalTimeSeriesService
+from .time_series_repository import EnvironmentalTimeSeriesRepository
 from .schemas import (
     AirQualityReadingDTO,
     ControlledScenarioDTO,
@@ -19,6 +21,14 @@ from .schemas import (
     WeatherObservationDTO,
     WindObservationDTO,
 )
+from .time_series_schemas import (
+    HistoricalBaseline,
+    PollutantReading,
+    StationLatestState,
+    WeatherForecastReading,
+    WeatherReading,
+    WindReading,
+)
 
 __all__ = [
     "AirQualityReadingDTO",
@@ -28,15 +38,23 @@ __all__ = [
     "EnvironmentalIngestionBatch",
     "EnvironmentalIngestionService",
     "EnvironmentalNormalizationResult",
+    "EnvironmentalTimeSeriesRepository",
+    "EnvironmentalTimeSeriesService",
     "GeoMasterWardResolver",
+    "HistoricalBaseline",
     "NormalizedAirQualityReading",
     "OpenAQReadingsAdapter",
+    "PollutantReading",
     "OpenMeteoWeatherAdapter",
     "OpenMeteoWindAdapter",
     "RejectedEnvironmentalRecord",
     "SeededEnvironmentalDataAdapter",
+    "StationLatestState",
     "StationMapping",
     "StaticWardResolver",
+    "WeatherForecastReading",
     "WeatherObservationDTO",
+    "WeatherReading",
     "WindObservationDTO",
+    "WindReading",
 ]

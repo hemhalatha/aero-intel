@@ -101,6 +101,21 @@ class EnvironmentalDataRepository:
         if exists is None:
             self.db.add(WeatherObservation(source_id=source_id, **observation.model_dump(exclude={"source_code"})))
 
+    def insert_weather_forecast_if_missing(
+        self,
+        forecast: WeatherForecastSeed,
+        source_id: int,
+    ) -> None:
+        exists = self.db.scalar(
+            select(WeatherForecast.id).where(
+                WeatherForecast.location_code == forecast.location_code,
+                WeatherForecast.generated_at == forecast.generated_at,
+                WeatherForecast.forecast_for == forecast.forecast_for,
+                WeatherForecast.source_id == source_id,
+            )
+        )
+        if exists is None:
+            self.db.add(WeatherForecast(source_id=source_id, **forecast.model_dump(exclude={"source_code"})))
     def upsert_controlled_scenario(
         self,
         scenario: ControlledScenarioSeed,

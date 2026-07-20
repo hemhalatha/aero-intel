@@ -2,7 +2,7 @@ from geoalchemy2 import WKTElement
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
+from app.database import get_session_local
 from app.geo_master.models import City, LandUseZone, MonitoringStation, RoadSegment, Ward
 
 
@@ -152,7 +152,7 @@ def seed(db: Session) -> None:
 
 
 def main() -> None:
-    with SessionLocal() as db:
+    with get_session_local()() as db:
         seed(db)
 
 

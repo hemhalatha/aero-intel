@@ -161,3 +161,20 @@ class RejectedEnvironmentalRecord(BaseModel):
 class EnvironmentalNormalizationResult(BaseModel):
     accepted_air_quality_readings: list[NormalizedAirQualityReading] = Field(default_factory=list)
     rejected_records: list[RejectedEnvironmentalRecord] = Field(default_factory=list)
+
+
+class WeatherForecastSeed(BaseModel):
+    source_code: str
+    location_code: str
+    city: str
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    generated_at: datetime
+    forecast_for: datetime
+    temperature_c: float | None = None
+    relative_humidity_pct: float | None = Field(default=None, ge=0, le=100)
+    wind_speed_kmh: float | None = Field(default=None, ge=0)
+    wind_direction_degrees: float | None = Field(default=None, ge=0, le=360)
+    provider: str
+    data_quality_status: DataQualityStatus = "valid"
+    raw_payload: dict[str, Any] = Field(default_factory=dict)

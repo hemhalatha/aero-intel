@@ -129,3 +129,32 @@ class RejectedEnvironmentalRecordLog(Base):
         Index("idx_env_rejected_records_provider_reason", "provider", "reason"),
         Index("idx_env_rejected_records_observed", "observed_at"),
     )
+
+
+class WeatherForecast(Base):
+    __tablename__ = "env_weather_forecasts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey("env_data_sources.id", ondelete="RESTRICT"), nullable=False)
+    location_code: Mapped[str] = mapped_column(String(80), nullable=False)
+    city: Mapped[str] = mapped_column(String(120), nullable=False)
+    latitude: Mapped[float] = mapped_column(Float, nullable=False)
+    longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    forecast_for: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    temperature_c: Mapped[float | None] = mapped_column(Float)
+    relative_humidity_pct: Mapped[float | None] = mapped_column(Float)
+    wind_speed_kmh: Mapped[float | None] = mapped_column(Float)
+    wind_direction_degrees: Mapped[float | None] = mapped_column(Float)
+    provider: Mapped[str] = mapped_column(String(80), nullable=False)
+    data_quality_status: Mapped[str] = mapped_column(String(40), nullable=False, default="valid")
+    raw_payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    source: Mapped[EnvironmentalDataSource] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint("location_code", "generated_at", "forecast_for", "source_id", name="uq_env_weather_forecast_location_generated_for_source"),
+        Index("idx_env_weather_forecasts_location_for", "location_code", "forecast_for"),
+        Index("idx_env_weather_forecasts_generated", "generated_at"),
+    )

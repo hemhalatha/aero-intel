@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
+from app.database import get_session_local
 from app.environmental_data.repositories import EnvironmentalDataRepository
 from app.environmental_data.seed_loader import build_seed_records, load_seed_fixture
 
@@ -27,7 +27,7 @@ def seed(db: Session) -> None:
 
 
 def main() -> None:
-    with SessionLocal() as db:
+    with get_session_local()() as db:
         seed(db)
 
 

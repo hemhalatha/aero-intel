@@ -157,3 +157,27 @@ Apply the normalization migration after the environmental data migration:
 ```powershell
 psql $env:DATABASE_URL -f backend/database/migrations/003_environmental_normalization.sql
 ```
+
+## Environmental Time-Series Retrieval
+
+`backend/app/environmental_data/time_series.py` and `time_series_repository.py` provide storage and retrieval only. They do not implement hotspot detection, forecasting models, attribution, pollution fingerprinting, or intervention verification.
+
+Service methods:
+
+- `get_latest_station_readings()`
+- `get_station_history(station_code, start_at, end_at)`
+- `get_ward_aqi_history(ward_code, start_at, end_at)`
+- `get_ward_pollutant_history(ward_code, pollutant, start_at, end_at)`
+- `get_historical_baseline(ward_code, pollutant, start_at, end_at, comparison_days=28)`
+- `get_current_weather(location_code=None)`
+- `get_current_wind(location_code=None)`
+- `get_weather_forecast(location_code, start_at, end_at)`
+- `get_readings_for_time_window(station_code=None, ward_code=None, pollutant=None, start_at=None, end_at=None)`
+
+FastAPI routes are mounted under `/api/v1/environmental` for latest station state, station history, ward AQI and pollutant history, historical baselines, current weather/wind, weather forecasts, and arbitrary time-window retrieval. Returned pollutant readings include `data_quality_status` so downstream modules can reject unreliable observations.
+
+Apply the time-series forecast migration after normalization:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/004_environmental_time_series.sql
+```

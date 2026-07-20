@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .attribution import attribute_sources, generate_explanation
+from .environmental_data.routes import router as environmental_data_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 
-app = FastAPI(title="Air Quality Command Center — Member 2", version="0.1.0")
+app = FastAPI(title="AeroIntel", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -12,11 +13,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(environmental_data_router)
 
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "module": "source-attribution"}
+    return {"status": "ok", "module": "aerointel"}
 
 
 @app.post("/api/v1/attributions", response_model=AttributionResponse, status_code=201)
