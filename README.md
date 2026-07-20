@@ -254,3 +254,21 @@ The response includes city average AQI, worst affected ward, active hotspot coun
 `backend/app/hotspots` provides a pure hotspot-candidate detection service. It reads latest station observations, historical ward baselines, AQI classification bands, and sensor-health reliability metadata from existing services, then returns candidate DTOs without creating or updating hotspot database records.
 
 Detection supports configurable AQI threshold crossings, ward-baseline AQI deviation, pollutant-specific spikes for PM2.5, PM10, NO2, SO2, CO, O3/Ozone, and minimum data-quality confidence checks. Returned candidates include ward, station, AQI, pollutant snapshot, severity, alert level, trigger reasons, anomaly score, timestamp, and data-quality confidence.
+
+## Hotspot Lifecycle Management
+
+`backend/app/hotspot_lifecycle` manages persisted hotspot records after the pure detector returns candidates. The lifecycle service checks for an existing non-resolved hotspot in the same ward, updates it instead of creating duplicates, escalates severity when a candidate worsens, preserves observation history, records status transitions, stores detection context for later investigation and verification, and writes publishable event records.
+
+Supported states are `ACTIVE`, `INVESTIGATING`, `WAITING_FOR_EVIDENCE`, `ACTION_ASSIGNED`, `UNDER_VERIFICATION`, and `RESOLVED`. Events include `hotspot.created`, `hotspot.escalated`, `hotspot.updated`, and `hotspot.resolved`.
+
+FastAPI routes:
+
+- `POST /api/v1/hotspots/candidates`
+- `GET /api/v1/hotspots?status=ACTIVE`
+- `GET /api/v1/hotspots/{hotspot_id}`
+- `PATCH /api/v1/hotspots/{hotspot_id}/state`
+- `GET /api/v1/hotspots/{hotspot_id}/observations`
+- `GET /api/v1/hotspots/{hotspot_id}/status-history`
+- `GET /api/v1/hotspots/{hotspot_id}/events`
+
+This module does not perform investigation, attribution, recommendations, forecasting, fingerprinting, or intervention verification.

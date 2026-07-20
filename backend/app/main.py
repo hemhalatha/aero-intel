@@ -5,6 +5,7 @@ from .attribution import attribute_sources, generate_explanation
 from .command_center.routes import router as command_center_router
 from .environmental_data.routes import router as environmental_data_router
 from .heatmap.routes import router as heatmap_router
+from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
 
@@ -19,6 +20,7 @@ app.add_middleware(
 app.include_router(command_center_router)
 app.include_router(environmental_data_router)
 app.include_router(heatmap_router)
+app.include_router(hotspot_lifecycle_router)
 app.include_router(sensor_health_router)
 
 
