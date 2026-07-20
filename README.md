@@ -1,10 +1,10 @@
-# AI Urban Air Quality Command Center — Member 2
+# AeroIntel
 
-This repository contains the AI Decision Support modules for the Urban Air Quality Command Center. The completed features are **Source Attribution** and the **Explanation Generator**.
+This repository contains the AI-powered Urban Air Quality Command Center backend and frontend modules. The current backend foundations cover source attribution, explanations, geo master data, environmental seed data, and provider-independent environmental ingestion.
 
-## Module 1: Source Attribution
+## Source Attribution
 
-The API accepts an evidence bundle from Member 1 and ranks construction dust, vehicular pollution, industrial emission, road dust, and biomass burning. Scores are weighted, normalized to 100%, and returned with the evidence that affected each source.
+The API accepts an evidence bundle and ranks construction dust, vehicular pollution, industrial emission, road dust, and biomass burning. Scores are weighted, normalized to 100%, and returned with the evidence that affected each source.
 
 ### Run the backend
 
@@ -35,13 +35,9 @@ npm run dev
 
 The frontend expects the backend at `http://127.0.0.1:8000`; override it with `VITE_API_BASE_URL` if needed.
 
-### Integration contract for Member 1
+### Source Attribution Contract
 
 `POST /api/v1/attributions` accepts the existing evidence-bundle fields (`traffic`, `construction`, `industry`, `satellite`, `wind_direction`, and `wind_speed`) plus optional `road_dust`, `biomass_burning`, `historical_patterns`, and `pm25` values. See `backend/data/mock_evidence.json` for a complete request.
-
-### Handoff to Members 2 and 3
-
-Consume the endpoint response's `primary_source`, `secondary_sources`, `confidence`, and `rankings`. Future Member 2 explanation, recommendation, and simulation modules will build on this response. Member 3 can use the eventual recommendation output for department tasks and citizen advisories.
 
 ## Explanation Generator
 
@@ -49,7 +45,7 @@ Consume the endpoint response's `primary_source`, `secondary_sources`, `confiden
 
 ## Geo Master Foundation
 
-Member 1 owns the independent `geo_master` backend module for city and spatial reference data. It defines SQLAlchemy models, Pydantic schemas, repositories, services, migration SQL, and seeded demo data for:
+The independent `geo_master` backend module provides city and spatial reference data. It defines SQLAlchemy models, Pydantic schemas, repositories, services, migration SQL, and seeded demo data for:
 
 - cities
 - wards with PostGIS polygon boundaries
@@ -86,7 +82,7 @@ Set `DATABASE_URL` before running the seed script if your PostgreSQL connection 
 
 ## Environmental Data Seed Foundation
 
-Member 1 also owns the reproducible environmental seed pipeline in `backend/app/environmental_data` and `backend/scripts/seed_environmental_data.py`.
+The reproducible environmental seed pipeline lives in `backend/app/environmental_data` and `backend/scripts/seed_environmental_data.py`.
 
 ### Real public data included
 
