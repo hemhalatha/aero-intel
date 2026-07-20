@@ -51,15 +51,12 @@ class SeededEvidenceCollector:
 
 
 def default_collectors() -> list[EvidenceCollector]:
+    from .construction import ConstructionEvidenceCollector
     from .traffic import TrafficEvidenceCollector
 
     return [
         TrafficEvidenceCollector(),
-        SeededEvidenceCollector(
-            name="construction_demo",
-            evidence_type="construction.activity",
-            payload={"active_permits_nearby": 2, "provenance": "controlled_demo"},
-        ),
+        ConstructionEvidenceCollector(),
         SeededEvidenceCollector(
             name="industrial_demo",
             evidence_type="industrial.activity",
