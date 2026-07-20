@@ -238,3 +238,13 @@ FastAPI routes:
 - `GET /api/v1/heatmap/wards`
 
 The repository gathers latest AQI readings, station coordinates, and sensor-health reliability metadata. The service only creates spatial visualization data; it does not perform hotspot detection, attribution, escalation, or forecasting.
+
+## Command Center Aggregation API
+
+`backend/app/command_center` provides a read-only aggregation service for the initial dashboard load. It composes existing environmental time-series, heatmap, sensor-health, and hotspot-summary provider interfaces without implementing hotspot detection, source attribution, forecasting, fingerprinting, or intervention logic.
+
+FastAPI route:
+
+- `GET /api/v1/command-center/dashboard`
+
+The response includes city average AQI, worst affected ward, active hotspot count, offline/degraded station count, latest reliable station readings, weather summary, wind information, current hotspot summaries, and city-level pollution trend. The default hotspot provider returns an empty list until a dedicated hotspot module is connected.
