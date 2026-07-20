@@ -248,3 +248,9 @@ FastAPI route:
 - `GET /api/v1/command-center/dashboard`
 
 The response includes city average AQI, worst affected ward, active hotspot count, offline/degraded station count, latest reliable station readings, weather summary, wind information, current hotspot summaries, and city-level pollution trend. The default hotspot provider returns an empty list until a dedicated hotspot module is connected.
+
+## Hotspot Detection Engine
+
+`backend/app/hotspots` provides a pure hotspot-candidate detection service. It reads latest station observations, historical ward baselines, AQI classification bands, and sensor-health reliability metadata from existing services, then returns candidate DTOs without creating or updating hotspot database records.
+
+Detection supports configurable AQI threshold crossings, ward-baseline AQI deviation, pollutant-specific spikes for PM2.5, PM10, NO2, SO2, CO, O3/Ozone, and minimum data-quality confidence checks. Returned candidates include ward, station, AQI, pollutant snapshot, severity, alert level, trigger reasons, anomaly score, timestamp, and data-quality confidence.
