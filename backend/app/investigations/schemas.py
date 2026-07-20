@@ -48,8 +48,11 @@ class EvidenceItemRecord(BaseModel):
     id: int | None = None
     investigation_id: int
     collector_name: str
+    source_type: str = "unknown"
     evidence_type: str
     source: str
+    detected: bool = True
+    support_direction: str = "NEUTRAL"
     payload: dict[str, Any]
     observed_at: datetime
     collected_at: datetime

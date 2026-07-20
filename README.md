@@ -287,3 +287,9 @@ FastAPI routes:
 - `POST /api/v1/investigations/{investigation_id}/evidence-requests`
 
 Collectors implement the common `EvidenceCollector` interface and return normalized `CollectorResult` DTOs. This module does not perform source attribution, recommendations, forecasting, fingerprinting, or intervention verification.
+
+## Traffic Evidence Collector
+
+`backend/app/investigations/traffic.py` provides an independent traffic evidence collector for hotspot investigations. It identifies nearby road segments, retrieves current traffic density, compares against historical traffic baselines for comparable hours, calculates density deviation, checks rush-hour correlation, evaluates road proximity, optionally enriches evidence with NO2 and CO patterns from environmental readings, and returns a standardized evidence object.
+
+Returned evidence includes `source_type`, `evidence_type`, `detected`, `confidence`, `support_direction` (`SUPPORTS`, `CONTRADICTS`, or `NEUTRAL`), raw supporting details, and `observed_at`. The collector only generates evidence and does not calculate final traffic-causation probability. When live traffic or geo dependencies are unavailable, it falls back to realistic seeded traffic corridors so demo investigations remain reproducible.

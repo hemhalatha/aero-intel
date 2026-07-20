@@ -176,8 +176,11 @@ class InvestigationOrchestrator:
                         EvidenceItemRecord(
                             investigation_id=refreshed.id,
                             collector_name=collector.name,
+                            source_type=result.source_type,
                             evidence_type=result.evidence_type,
                             source=result.source,
+                            detected=result.detected,
+                            support_direction=result.support_direction,
                             payload=result.payload,
                             observed_at=result.observed_at,
                             collected_at=timestamp,
@@ -190,8 +193,11 @@ class InvestigationOrchestrator:
                         {
                             "collector_name": collector.name,
                             "evidence_id": evidence.id,
+                            "source_type": evidence.source_type,
                             "evidence_type": evidence.evidence_type,
                             "source": evidence.source,
+                            "detected": evidence.detected,
+                            "support_direction": evidence.support_direction,
                         },
                         timestamp,
                     )

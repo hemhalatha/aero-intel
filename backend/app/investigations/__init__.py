@@ -3,6 +3,7 @@
 from .collectors import CollectorResult, EvidenceCollector
 from .schemas import InvestigationDetail, InvestigationRecord, InvestigationStatus
 from .service import InvestigationOrchestrator
+from .traffic import TrafficEvidenceCollector
 
 __all__ = [
     "CollectorResult",
@@ -11,4 +12,5 @@ __all__ = [
     "InvestigationOrchestrator",
     "InvestigationRecord",
     "InvestigationStatus",
+    "TrafficEvidenceCollector",
 ]

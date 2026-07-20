@@ -1,7 +1,9 @@
 from datetime import UTC, datetime
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field
+
+SupportDirection = Literal["SUPPORTS", "CONTRADICTS", "NEUTRAL"]
 
 
 class CollectorResult(BaseModel):
@@ -10,6 +12,9 @@ class CollectorResult(BaseModel):
     payload: dict[str, Any]
     observed_at: datetime
     confidence: float = Field(ge=0, le=1)
+    source_type: str = "controlled_demo"
+    detected: bool = True
+    support_direction: SupportDirection = "NEUTRAL"
 
 
 class EvidenceCollector(Protocol):
@@ -35,6 +40,9 @@ class SeededEvidenceCollector:
             CollectorResult(
                 evidence_type=self.evidence_type,
                 source=self.name,
+                source_type="controlled_demo",
+                detected=True,
+                support_direction="NEUTRAL",
                 payload={**self.payload, "ward_code": investigation.ward_code},
                 observed_at=observed_at,
                 confidence=0.7,
@@ -43,12 +51,10 @@ class SeededEvidenceCollector:
 
 
 def default_collectors() -> list[EvidenceCollector]:
+    from .traffic import TrafficEvidenceCollector
+
     return [
-        SeededEvidenceCollector(
-            name="traffic_demo",
-            evidence_type="traffic.anomaly",
-            payload={"traffic_index": 0.74, "provenance": "controlled_demo"},
-        ),
+        TrafficEvidenceCollector(),
         SeededEvidenceCollector(
             name="construction_demo",
             evidence_type="construction.activity",
