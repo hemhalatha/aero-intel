@@ -181,3 +181,28 @@ Apply the time-series forecast migration after normalization:
 ```powershell
 psql $env:DATABASE_URL -f backend/database/migrations/004_environmental_time_series.sql
 ```
+
+## Sensor Health Monitoring
+
+`backend/app/sensor_health` is an independent monitoring module for station reliability. It classifies monitoring stations as `ONLINE`, `DELAYED`, `DEGRADED`, or `OFFLINE` using configurable rules for last reading age, missing pollutant fields, invalid values, repeated identical readings, and abnormal sensor behavior.
+
+Stored health data:
+
+- current station health in `sensor_health_current`
+- historical health changes in `sensor_health_history`
+- data-quality score, reasons, missing pollutants, invalid pollutants, repeated pollutants, and reliability flag
+
+FastAPI routes are mounted under `/api/v1/sensor-health`:
+
+- `GET /stations`
+- `GET /stations/{station_code}`
+- `GET /stations/{station_code}/history`
+- `GET /reliability?status=ONLINE&data_quality_score=0.9`
+
+Analytics modules should use `SensorHealthService.is_reading_reliable(status, data_quality_score)` before using sensor readings for hotspot detection, pollution fingerprinting, or intervention verification.
+
+Apply the sensor health migration after the environmental time-series migration:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/005_sensor_health.sql
+```
