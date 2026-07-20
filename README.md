@@ -83,3 +83,40 @@ python -m scripts.seed_geo_master
 ```
 
 Set `DATABASE_URL` before running the seed script if your PostgreSQL connection is not `postgresql+psycopg://postgres:postgres@localhost:5432/aerointel`.
+
+## Environmental Data Seed Foundation
+
+Member 1 also owns the reproducible environmental seed pipeline in `backend/app/environmental_data` and `backend/scripts/seed_environmental_data.py`.
+
+### Real public data included
+
+The bundled fixture in `backend/data/environmental_seed.json` contains small deterministic extracts from public sources so demos and tests do not depend on live API availability:
+
+- Air quality and pollutant readings: Jigani, Bengaluru - KSPCB 15-minute AQI CSV mirrored by OpenCity from CPCB CAAQM data. The full public CSV is referenced in the fixture source metadata.
+- Weather and wind: Open-Meteo Historical Weather API for Bengaluru center on 2025-01-15, including temperature, relative humidity, wind speed, and wind direction.
+
+Each source is recorded in `env_data_sources` with `provenance = 'real_public'`, source URL, license, and notes.
+
+### Controlled demo scenarios
+
+Operational signals that are difficult to access reliably during a hackathon are deliberately separated in `env_controlled_scenarios` with `provenance = 'controlled_demo'`:
+
+- evening traffic congestion around Silk Board and Outer Ring Road
+- CBD road resurfacing and construction material handling
+- Peenya industrial stack-maintenance activity
+
+These scenarios are realistic enough for hotspot investigation and attribution demos, but they are not mixed into real public observations.
+
+### Apply and seed environmental data
+
+Apply migrations in order, then run the seed:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/001_geo_master.sql
+psql $env:DATABASE_URL -f backend/database/migrations/002_environmental_data.sql
+cd backend
+python -m scripts.seed_geo_master
+python -m scripts.seed_environmental_data
+```
+
+The environmental seed is idempotent: sources and controlled scenarios are upserted, while readings are inserted only when the station/location, timestamp, pollutant, and source combination is missing.
