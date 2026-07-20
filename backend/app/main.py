@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from sqlalchemy.exc import OperationalError
 
 from .attribution import attribute_sources, generate_explanation
 from .command_center.routes import router as command_center_router
+from .database import DatabaseConfigurationError, DatabaseConnectionError, _diagnose_operational_error, safe_database_url
 from .environmental_data.routes import router as environmental_data_router
 from .heatmap.routes import router as heatmap_router
 from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
@@ -26,6 +30,38 @@ app.include_router(investigations_router)
 app.include_router(sensor_health_router)
 
 
+
+@app.exception_handler(DatabaseConfigurationError)
+async def database_configuration_exception_handler(
+    request: Request,
+    exc: DatabaseConfigurationError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": str(exc),
+            "hint": "Set DATABASE_URL in .env or backend/.env. Do not commit real passwords.",
+        },
+    )
+
+
+@app.exception_handler(DatabaseConnectionError)
+async def database_connection_exception_handler(
+    request: Request,
+    exc: DatabaseConnectionError,
+) -> JSONResponse:
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
+@app.exception_handler(OperationalError)
+async def sqlalchemy_operational_exception_handler(
+    request: Request,
+    exc: OperationalError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=503,
+        content={"detail": _diagnose_operational_error(exc, safe_database_url())},
+    )
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "module": "aerointel"}

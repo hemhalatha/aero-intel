@@ -17,6 +17,27 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 Open `http://127.0.0.1:8000/docs` for interactive API documentation.
+### Database configuration
+
+The backend reads `DATABASE_URL` from environment variables, then from `.env` or `backend/.env` if present. Do not commit real local credentials.
+
+Expected local format:
+
+```powershell
+DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@127.0.0.1:5432/aerointel
+```
+
+- Replace `YOUR_PASSWORD` with your real local PostgreSQL password.
+- The project database name is `aerointel`.
+- The local host is `127.0.0.1` and the default PostgreSQL port is `5432` unless your install uses a different host or port.
+- The SQLAlchemy URL uses the `postgresql+psycopg` driver, matching the installed `psycopg[binary]` dependency.
+
+Test the database connection before starting the API:
+
+```powershell
+cd backend
+python -m app.scripts.check_db
+```
 
 ### Run tests
 
@@ -25,7 +46,7 @@ cd backend
 pytest
 ```
 
-### Run the attribution screen
+### Run the Command Center frontend
 
 ```powershell
 cd frontend
@@ -33,7 +54,7 @@ npm install
 npm run dev
 ```
 
-The frontend expects the backend at `http://127.0.0.1:8000`; override it with `VITE_API_BASE_URL` if needed.
+The React/Vite frontend opens the AeroIntel Command Center: city KPIs, interactive AQI map, heatmap layer, station markers, hotspot investigation entry points, weather/wind context, sensor health, worst wards, and city pollution trend. It consumes the backend APIs under `/api/v1/command-center`, `/api/v1/heatmap`, `/api/v1/hotspots`, and `/api/v1/sensor-health`. The frontend expects the backend at `http://127.0.0.1:8000`; override it with `VITE_API_BASE_URL` if needed.
 
 ### Source Attribution Contract
 
@@ -78,7 +99,7 @@ cd backend
 python -m scripts.seed_geo_master
 ```
 
-Set `DATABASE_URL` before running the seed script if your PostgreSQL connection is not `postgresql+psycopg://postgres:postgres@localhost:5432/aerointel`.
+Set `DATABASE_URL` before running the seed script using the format `postgresql+psycopg://postgres:YOUR_PASSWORD@127.0.0.1:5432/aerointel`.
 
 ## Environmental Data Seed Foundation
 
