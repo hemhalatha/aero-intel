@@ -206,3 +206,16 @@ Apply the sensor health migration after the environmental time-series migration:
 ```powershell
 psql $env:DATABASE_URL -f backend/database/migrations/005_sensor_health.sql
 ```
+
+## AQI Classification Engine
+
+`backend/app/aqi` provides a deterministic AQI classification engine for shared use by the Command Center, hotspot detection, citizen advisory, escalation rules, and verification dashboards.
+
+The CPCB AQI bands live in `backend/app/aqi/config.py` as configuration, not duplicated business logic. Use `classify_aqi(aqi)` or instantiate `AQIClassifier(CPCB_AQI_BANDS)` to return:
+
+- AQI band
+- severity rank
+- display label
+- health severity category
+
+The default CPCB bands cover `0-500` and reject negative or out-of-range values explicitly.
