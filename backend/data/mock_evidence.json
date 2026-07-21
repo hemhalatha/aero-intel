@@ -1,0 +1,20 @@
+{
+  "hotspot_id": 101,
+  "traffic": {"detected": true, "confidence": 0.82},
+  "construction": {"detected": true, "confidence": 0.91},
+  "industry": {"detected": false, "confidence": 0.20},
+  "satellite": {"detected": true, "confidence": 0.74},
+  "road_dust": {"detected": true, "confidence": 0.62},
+  "biomass_burning": {"detected": false, "confidence": 0.10},
+  "wind_direction": "North",
+  "wind_speed": 18,
+  "pm25": 128,
+  "historical_patterns": {
+    "construction_match": 0.88,
+    "traffic_match": 0.63,
+    "industry_match": 0.10,
+    "road_dust_match": 0.58,
+    "biomass_match": 0.05
+  }
+}
+

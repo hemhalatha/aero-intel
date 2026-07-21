@@ -1,0 +1,12 @@
+{
+  "hotspot_id": 101,
+  "primary_source": "Construction Dust",
+  "confidence": 37.7,
+  "headline": "Construction Dust is the most likely pollution source (37.7%).",
+  "summary": "This conclusion is supported by Construction activity detected, Satellite particulate indication, Wind transport (18 km/h, North) and Historical hotspot pattern.",
+  "evidence": [
+    {"label": "Construction activity detected", "contribution": 54.6},
+    {"label": "Satellite particulate indication", "contribution": 13.3}
+  ],
+  "model_version": "weighted-rules-v1"
+}
