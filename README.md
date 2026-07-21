@@ -408,6 +408,24 @@ It proves three predictable hotspot scenarios:
 - industrial-led hotspot: industrial evidence supports
 
 A separate assertion verifies that the investigation remains `PARTIALLY_COMPLETE` and preserves successful evidence when one evidence collector fails.
+
+## Pollution Fingerprint Engine
+
+`backend/app/pollution_fingerprint` derives structured source-fingerprint features from the downstream intelligence contract. It consumes pollutant snapshots, historical ward AQI, wind/evidence metadata, and standardized evidence bundles without reading Member 1 database tables directly.
+
+FastAPI routes:
+
+- `GET /api/v1/pollution-fingerprints/hotspots/{hotspot_id}`
+- `GET /api/v1/pollution-fingerprints/investigations/{investigation_id}`
+
+Query parameters:
+
+- `start_at` and `end_at` select the historical context window.
+- `pollutants` can be repeated to request additional pollutant series through the underlying intelligence contract.
+
+Extracted features include PM10/PM2.5 ratio, NO2, CO, SO2, traffic anomaly, rush-hour correlation, construction proximity, industrial proximity, wind alignment, temporal persistence, and optional biomass/waste-burning markers. Configurable source patterns live in `backend/app/pollution_fingerprint/config.py` for Construction Dust, Vehicular Emissions, Industrial Emissions, Road Dust, and Biomass or Waste Burning.
+
+The response returns extracted feature values, pattern-match scores for every source, missing fingerprint features, and data-quality confidence. It deliberately sets `is_final_attribution = false`; Attribution and Uncertainty modules should consume this output as evidence, not as a final source decision.
 ## Operations, Advisory, and Verification Contract
 
 `backend/app/operations_contract` defines the read-only API boundary for operations, citizen advisory, and intervention-verification modules. Consumers should use this contract instead of reading Member 1 environmental, geo, hotspot, or sensor-health tables directly.

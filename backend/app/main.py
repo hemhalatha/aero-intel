@@ -17,6 +17,7 @@ from .heatmap.routes import router as heatmap_router
 from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
 from .intelligence_contract.routes import router as intelligence_contract_router
 from .operations_contract.routes import router as operations_contract_router
+from .pollution_fingerprint.routes import router as pollution_fingerprint_router
 from .investigations.routes import router as investigations_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
@@ -36,6 +37,7 @@ app.include_router(hotspot_lifecycle_router)
 app.include_router(investigations_router)
 app.include_router(intelligence_contract_router)
 app.include_router(operations_contract_router)
+app.include_router(pollution_fingerprint_router)
 app.include_router(sensor_health_router)
 
 
