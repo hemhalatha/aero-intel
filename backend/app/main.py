@@ -22,6 +22,7 @@ from .pollution_fingerprint.routes import router as pollution_fingerprint_router
 from .investigations.routes import router as investigations_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
+from .uncertainty.routes import router as uncertainty_router
 
 app = FastAPI(title="AeroIntel", version="0.1.0")
 app.add_middleware(
@@ -41,6 +42,7 @@ app.include_router(intelligence_contract_router)
 app.include_router(operations_contract_router)
 app.include_router(pollution_fingerprint_router)
 app.include_router(sensor_health_router)
+app.include_router(uncertainty_router)
 
 
 @app.exception_handler(DatabaseConfigurationError)

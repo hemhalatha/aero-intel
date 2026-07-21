@@ -410,6 +410,34 @@ It proves three predictable hotspot scenarios:
 A separate assertion verifies that the investigation remains `PARTIALLY_COMPLETE` and preserves successful evidence when one evidence collector fails.
 
 
+
+## Uncertainty and Next Best Evidence
+
+`backend/app/uncertainty` provides rule-based uncertainty assessment and next-best-evidence recommendations for downstream intelligence workflows. It consumes attribution rankings, pollution fingerprint output, evidence counts, evidence quality, collector completion state, and missing fingerprint features.
+
+FastAPI route:
+
+- `POST /api/v1/uncertainty/assessments`
+
+The Uncertainty Engine evaluates:
+
+- gap between the top attribution scores
+- supporting evidence quantity
+- contradictory evidence quantity
+- evidence quality
+- missing collectors
+- missing pollution-fingerprint features
+
+It returns `LOW`, `MEDIUM`, or `HIGH` uncertainty with traceable signals. When uncertainty is `MEDIUM` or `HIGH`, the Next Best Evidence Engine returns a structured request containing `requested_collectors` and an `orchestrator_payload` compatible with the Investigation Orchestrator's additional evidence request flow.
+
+Prototype rule-table examples:
+
+- Traffic and Construction close together -> request `pm10_pm25_fingerprint_analysis`
+- Industrial and Traffic close together -> request `wind_source_alignment_analysis`
+- Missing expected collectors -> request `missing_collector_check`
+- Missing biomass/waste-burning marker -> request `biomass_burning_marker_check`
+
+The module does not restart investigations and does not perform final attribution. It recommends the next check that can distinguish leading candidate sources.
 ## Evidence Graph Module
 
 `backend/app/evidence_graph` converts hotspot context and standardized evidence into an explainable, reproducible graph. It uses NetworkX internally to assemble the graph, then persists graph versions in `evidence_graphs`, `evidence_graph_nodes`, and `evidence_graph_edges` so later reasoning paths can be replayed.
