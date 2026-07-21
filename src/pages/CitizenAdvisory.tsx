@@ -7,19 +7,22 @@ export const CitizenAdvisory: React.FC = () => {
   const activeAdvisory = mockAdvisories.find((a) => a.code === selectedLang) || mockAdvisories[0];
 
   return (
-    <div className="space-y-6">
-      <div className="glass-panel p-5 rounded-xl flex justify-between items-center">
+    <div className="px-8 py-6 space-y-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h2 className="text-lg font-mono font-bold text-white">PUBLIC HEALTH & CITIZEN BROADCAST DIRECTIVES</h2>
-          <p className="text-xs text-gray-400 font-mono">Ward-Level Multilingual Alerts</p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">Public Health & Citizen Broadcast Directives</h1>
+          <p className="text-sm font-medium text-slate-500">Automated ward-level multilingual advisories pushed to mobile & IVR systems</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           {mockAdvisories.map((a) => (
             <button
               key={a.code}
               onClick={() => setSelectedLang(a.code)}
-              className={`px-3 py-1.5 rounded font-mono text-xs font-bold transition ${
-                selectedLang === a.code ? 'bg-brand-cyan text-dark-950 shadow-neon-cyan' : 'bg-dark-900 text-gray-400 border border-dark-700'
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                selectedLang === a.code 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm font-semibold' 
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
               {a.language}
@@ -28,31 +31,47 @@ export const CitizenAdvisory: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass-panel p-6 rounded-xl border-l-4 border-brand-red">
-        <div className="flex items-center gap-3 text-brand-red mb-3 font-mono">
-          <ShieldAlert className="h-6 w-6" />
-          <span className="text-sm font-bold uppercase">SEVERE AIR POLLUTION PUBLIC EMERGENCY BROADCAST</span>
+      {/* Main Advisory Alert Banner */}
+      <div className="ui-card border-l-4 border-l-red-600 space-y-3">
+        <div className="flex items-center gap-2 text-red-700 text-xs font-semibold uppercase tracking-wider">
+          <ShieldAlert className="h-4 w-4" />
+          <span>Severe Air Pollution Emergency Public Broadcast</span>
         </div>
-        <p className="text-base text-gray-100 font-mono leading-relaxed bg-dark-900/90 p-5 rounded-lg border border-dark-700">
+        <p className="text-base font-normal text-slate-900 leading-relaxed bg-slate-50 p-5 rounded-xl border border-slate-200">
           "{activeAdvisory.text}"
         </p>
       </div>
 
+      {/* Target Demographic Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel p-5 rounded-xl space-y-2">
-          <School className="h-6 w-6 text-brand-amber" />
-          <h3 className="font-bold text-white text-sm">Schools & Institutions</h3>
-          <p className="text-xs text-gray-400">Suspend outdoor sports until AQI drops below 200 band.</p>
+        <div className="ui-card space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+            <School className="h-5 w-5" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-900">Schools & Institutions</h2>
+          <p className="text-xs font-normal text-slate-700 leading-relaxed">
+            Suspend all outdoor physical sports, morning assemblies, and continuous outdoor activities until AQI drops below the 200 threshold.
+          </p>
         </div>
-        <div className="glass-panel p-5 rounded-xl space-y-2">
-          <Heart className="h-6 w-6 text-brand-red" />
-          <h3 className="font-bold text-white text-sm">Vulnerable Population</h3>
-          <p className="text-xs text-gray-400">Elderly & respiratory patients should remain indoors with HEPA filters.</p>
+
+        <div className="ui-card space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-red-700">
+            <Heart className="h-5 w-5" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-900">Vulnerable Population Groups</h2>
+          <p className="text-xs font-normal text-slate-700 leading-relaxed">
+            Elderly citizens, pregnant women, and asthma/respiratory patients must remain indoors with HEPA air purifiers active.
+          </p>
         </div>
-        <div className="glass-panel p-5 rounded-xl space-y-2">
-          <Building2 className="h-6 w-6 text-brand-cyan" />
-          <h3 className="font-bold text-white text-sm">Outdoor Workers</h3>
-          <p className="text-xs text-gray-400">Mandatory N95 mask distribution enforced for municipal workers.</p>
+
+        <div className="ui-card space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-900">Outdoor & Sanitation Workers</h2>
+          <p className="text-xs font-normal text-slate-700 leading-relaxed">
+            Mandatory N95 respirator mask distribution enforced for all municipal sweepers, traffic officers, and site laborers.
+          </p>
         </div>
       </div>
     </div>

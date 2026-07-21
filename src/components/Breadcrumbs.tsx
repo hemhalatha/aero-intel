@@ -7,22 +7,24 @@ export const Breadcrumbs: React.FC = () => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <div className="flex items-center space-x-2 text-xs text-gray-400 font-mono py-2 px-6 bg-dark-800/50 border-b border-dark-700">
-      <Link to="/" className="hover:text-brand-cyan flex items-center gap-1">
-        <Home className="h-3 w-3" />
-        <span>AEROINTEL</span>
+    <div className="flex items-center space-x-2 text-xs font-medium text-slate-500 py-3 px-8 bg-white border-b border-slate-200">
+      <Link to="/" className="hover:text-blue-600 flex items-center gap-1.5 transition-colors">
+        <Home className="h-3.5 w-3.5 text-slate-400" />
+        <span>AeroIntel</span>
       </Link>
       {pathnames.map((name, index) => {
         const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
         const isLast = index === pathnames.length - 1;
+        const formattedName = name.replace('-', ' ').toUpperCase();
+
         return (
           <React.Fragment key={name}>
-            <ChevronRight className="h-3 w-3 text-gray-600" />
+            <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
             {isLast ? (
-              <span className="text-brand-cyan uppercase font-bold">{name}</span>
+              <span className="text-slate-900 font-semibold">{formattedName}</span>
             ) : (
-              <Link to={routeTo} className="hover:text-white uppercase">
-                {name}
+              <Link to={routeTo} className="hover:text-blue-600 transition-colors">
+                {formattedName}
               </Link>
             )}
           </React.Fragment>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, CheckSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Search, Plus, Building2, MapPin, ChevronRight } from 'lucide-react';
 import { mockTasks } from '../mock/data';
 import { Task } from '../types';
 
@@ -15,65 +14,105 @@ export const TaskManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex items-center gap-3 glass-panel px-3 py-2 rounded-lg flex-1 max-w-md">
-          <Search className="h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search tasks or departments..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent border-none text-xs text-white focus:outline-none w-full font-mono"
-          />
+    <div className="px-8 py-6 space-y-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">Inter-Agency Directive Tracker</h1>
+          <p className="text-sm font-medium text-slate-500">Track real-time status and operational progress of active municipal enforcement orders</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-brand-cyan text-dark-950 font-mono text-xs font-bold rounded-lg shadow-neon-cyan">
-          <Plus className="h-4 w-4" /> CREATE DIRECTIVE
+
+        <button className="ui-button-primary">
+          <Plus className="h-4 w-4" />
+          <span>New Action Directive</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-auto">
-        {columns.map((col) => (
-          <div key={col} className="glass-panel rounded-xl p-3 min-w-[250px]">
-            <div className="flex justify-between items-center mb-3 pb-2 border-b border-dark-700/80">
-              <h3 className="text-xs font-mono font-bold text-gray-300 uppercase">{col.replace('_', ' ')}</h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 bg-dark-900 text-brand-cyan rounded">
-                {tasks.filter((t) => t.status === col).length}
-              </span>
-            </div>
+      {/* Filter Bar */}
+      <div className="flex items-center gap-3 bg-white border border-slate-200 p-2.5 rounded-2xl shadow-sm max-w-md">
+        <Search className="h-4 w-4 text-slate-400 pl-0.5" />
+        <input
+          type="text"
+          placeholder="Filter by title, ward, or department..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="bg-transparent border-none text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none w-full"
+        />
+      </div>
 
-            <div className="space-y-3">
-              {tasks
-                .filter((t) => t.status === col && t.title.toLowerCase().includes(searchTerm.toLowerCase()))
-                .map((task) => (
-                  <motion.div
-                    key={task.id}
-                    layout
-                    className="bg-dark-900/90 border border-dark-700 p-3 rounded-lg space-y-2 hover:border-brand-cyan/40 transition"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-mono text-gray-500">{task.id}</span>
-                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${task.priority === 'CRITICAL' ? 'bg-brand-red/20 text-brand-red' : 'bg-brand-amber/20 text-brand-amber'}`}>
-                        {task.priority}
-                      </span>
-                    </div>
-                    <div className="text-xs font-semibold text-gray-200">{task.title}</div>
-                    <div className="text-[10px] font-mono text-gray-400">{task.department} • {task.ward}</div>
-                    <div className="pt-2 flex justify-between gap-1 border-t border-dark-800">
-                      {col !== 'COMPLETED' && (
-                        <button
-                          onClick={() => moveTask(task.id, columns[columns.indexOf(col) + 1])}
-                          className="w-full text-[10px] font-mono py-1 bg-dark-800 hover:bg-dark-700 text-brand-cyan rounded border border-dark-700 transition"
+      {/* Kanban Board Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 overflow-x-auto">
+        {columns.map((col) => {
+          const colTasks = tasks.filter(
+            (t) => t.status === col && t.title.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          return (
+            <div key={col} className="bg-slate-100/80 border border-slate-200 rounded-2xl p-4 min-w-[260px] flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-200">
+                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    {col.replace('_', ' ')}
+                  </h2>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 bg-white border border-slate-200 text-slate-700 rounded-md">
+                    {colTasks.length}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {colTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 space-y-3"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+                          {task.id}
+                        </span>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-md border ${
+                            task.priority === 'CRITICAL'
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
                         >
-                          ADVANCE STATUS →
-                        </button>
+                          {task.priority}
+                        </span>
+                      </div>
+
+                      <h3 className="text-sm font-semibold text-slate-900 leading-snug">
+                        {task.title}
+                      </h3>
+
+                      <div className="space-y-1.5 text-xs text-slate-600 font-medium pt-1">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{task.department}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                          <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          <span>{task.ward}</span>
+                        </div>
+                      </div>
+
+                      {col !== 'COMPLETED' && (
+                        <div className="pt-2 border-t border-slate-100">
+                          <button
+                            onClick={() => moveTask(task.id, columns[columns.indexOf(col) + 1])}
+                            className="w-full text-xs font-medium py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1"
+                          >
+                            <span>Advance Status</span>
+                            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                          </button>
+                        </div>
                       )}
                     </div>
-                  </motion.div>
-                ))}
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

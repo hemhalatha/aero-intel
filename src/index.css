@@ -5,63 +5,55 @@
 
 @layer base {
   body {
-    @apply bg-dark-950 text-gray-100 font-sans antialiased overflow-x-hidden;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-900;
   }
 }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: rgba(17, 24, 39, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Card Surface Utilities */
+@layer components {
+  .ui-card {
+    @apply bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-200;
+  }
+
+  .ui-button-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl px-4 py-2 transition-colors duration-150 shadow-sm flex items-center justify-center gap-2;
+  }
+
+  .ui-button-secondary {
+    @apply bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-sm rounded-xl px-4 py-2 transition-colors duration-150 shadow-sm flex items-center justify-center gap-2;
+  }
 }
 
-.glass-panel-cyan {
-  background: rgba(11, 15, 23, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.08);
-}
-
-/* Scanline / Grid Effect */
-.bg-grid-pattern {
-  background-size: 30px 30px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-}
-
-/* Leaflet Dark Customizations */
+/* Leaflet Map Custom Base */
 .leaflet-container {
-  background-color: #070A10 !important;
-  font-family: inherit;
+  background-color: #F8FAFC !important;
+  font-family: inherit !important;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #0B0F17 !important;
-  color: #F3F4F6 !important;
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
 }
 
 .leaflet-popup-tip {
-  background: #0B0F17 !important;
+  background: #FFFFFF !important;
 }
 
 /* Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #070A10;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
-  border-radius: 3px;
+  background: #CBD5E1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00F0FF;
+  background: #94A3B8;
 }

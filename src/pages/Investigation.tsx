@@ -1,82 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Truck, HardHat, Factory, Terminal, Cpu } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from 'react';
+import { Truck, HardHat, Factory, Clock, AlertCircle, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
 import { mockEvidenceItems } from '../mock/data';
 
 export const Investigation: React.FC = () => {
-  const [terminalText, setTerminalText] = useState('');
-  const fullText = "> RUNNING SPATIAL SWEEP... \n> CHECKING SENTINEL-5P AEROSOL INDEX... \n> DETECTED UNCOVERED SOIL AT PERMIT #8891 (CONFIDENCE 92%)... \n> ATTRIBUTION COMPLETE.";
-
-  useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      setTerminalText(fullText.slice(0, index));
-      index++;
-      if (index > fullText.length) clearInterval(timer);
-    }, 30);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <div className="space-y-6">
-      {/* AI Investigation Terminal Header */}
-      <div className="glass-panel-cyan p-5 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="px-8 py-6 space-y-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-xs text-brand-cyan font-mono mb-1">
-            <Cpu className="h-4 w-4 animate-spin" />
-            <span>AI AGENT INVESTIGATION ENGINE ACTIVE</span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 bg-red-50 text-red-700 border border-red-200 text-xs font-semibold rounded-full">
+              Active Case File
+            </span>
+            <span className="text-xs font-medium text-slate-500">Incident #HS-801</span>
           </div>
-          <h2 className="text-2xl font-bold font-mono text-white">HOTSPOT CASE #HS-801</h2>
-          <p className="text-xs text-gray-400 font-mono mt-0.5">Ward 17 (Okhla Phase II) • Sensor Station ST-05</p>
+          <h1 className="text-2xl font-bold text-slate-900">Hotspot Investigation: Ward 17</h1>
+          <p className="text-sm font-medium text-slate-500 mt-0.5">
+            Cross-referencing satellite aerosol feeds, traffic density indices, and municipal registries
+          </p>
         </div>
-        <div className="font-mono text-right bg-dark-900/80 p-3 rounded-lg border border-dark-700">
-          <div className="text-[10px] text-gray-400">ISOLATED CONFIDENCE</div>
-          <div className="text-2xl font-bold text-brand-cyan">92.4%</div>
+        <div className="text-right">
+          <span className="text-xs font-medium text-slate-500">Confidence Score</span>
+          <div className="text-3xl font-bold text-slate-900">92.4%</div>
         </div>
       </div>
 
-      {/* Terminal Output Card */}
-      <div className="glass-panel p-4 rounded-xl font-mono text-xs text-brand-green bg-dark-950/90 border border-brand-green/30">
-        <div className="flex items-center gap-2 text-gray-500 pb-2 border-b border-dark-800 mb-2">
-          <Terminal className="h-4 w-4 text-brand-green" />
-          <span>AEROINTEL AGENT LOG STREAM</span>
-        </div>
-        <pre className="whitespace-pre-wrap leading-relaxed">{terminalText}</pre>
-      </div>
-
-      {/* Evidence Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Evidence Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {mockEvidenceItems.map((item) => (
-          <motion.div
-            key={item.id}
-            whileHover={{ y: -4 }}
-            className="glass-panel p-5 rounded-xl border border-dark-700/80 flex flex-col justify-between"
-          >
+          <div key={item.id} className="ui-card flex flex-col justify-between">
             <div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-2.5 bg-dark-900 border border-dark-700 rounded-lg">
-                  {item.type === 'CONSTRUCTION' && <HardHat className="h-6 w-6 text-brand-amber" />}
-                  {item.type === 'TRAFFIC' && <Truck className="h-6 w-6 text-brand-cyan" />}
-                  {item.type === 'INDUSTRIAL' && <Factory className="h-6 w-6 text-brand-red" />}
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700">
+                  {item.type === 'CONSTRUCTION' && <HardHat className="h-6 w-6 text-amber-600" />}
+                  {item.type === 'TRAFFIC' && <Truck className="h-6 w-6 text-blue-600" />}
+                  {item.type === 'INDUSTRIAL' && <Factory className="h-6 w-6 text-red-600" />}
                 </div>
-                <span className="text-xs font-mono font-bold px-2.5 py-1 bg-brand-cyan/10 border border-brand-cyan/30 text-brand-cyan rounded-md">
-                  {(item.confidence * 100).toFixed(0)}% Match
+                <span className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+                  {(item.confidence * 100).toFixed(0)}% Confidence
                 </span>
               </div>
-              <h3 className="font-bold text-white text-sm mb-1">{item.title}</h3>
-              <p className="text-xs text-gray-400 leading-relaxed mb-4">{item.description}</p>
+              <h2 className="text-base font-semibold text-slate-900 mb-2">{item.title}</h2>
+              <p className="text-xs font-normal text-slate-700 leading-relaxed mb-6">{item.description}</p>
             </div>
 
-            <div className="border-t border-dark-700/80 pt-3 space-y-1 font-mono text-xs">
+            <div className="border-t border-slate-200 pt-4 space-y-2 text-xs">
               {Object.entries(item.metadata).map(([key, value]) => (
-                <div key={key} className="flex justify-between">
-                  <span className="text-gray-500">{key}:</span>
-                  <span className="text-gray-200 font-bold">{value}</span>
+                <div key={key} className="flex justify-between items-center">
+                  <span className="font-medium text-slate-500">{key}:</span>
+                  <span className="font-semibold text-slate-900">{value}</span>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         ))}
+      </div>
+
+      {/* Investigation Activity Log */}
+      <div className="ui-card space-y-4">
+        <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900 mb-1">Evidence Gathering Audit Trail</h2>
+            <p className="text-xs font-medium text-slate-500">Sequential sensor triggers and satellite sweep logs</p>
+          </div>
+          <span className="text-xs font-medium text-slate-500">3 Logs Recorded</span>
+        </div>
+
+        <div className="space-y-3">
+          {mockEvidenceItems.map((item, idx) => (
+            <div key={item.id} className="p-4 bg-slate-50/80 border border-slate-200 rounded-xl flex items-start gap-4">
+              <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0">
+                {idx + 1}
+              </div>
+              <div className="flex-1 text-xs space-y-1">
+                <div className="flex justify-between font-medium">
+                  <span className="text-slate-500">{item.timestamp}</span>
+                  <span className="text-blue-600 font-semibold">{item.type} DETECTED</span>
+                </div>
+                <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                <p className="text-slate-700 font-normal">{item.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

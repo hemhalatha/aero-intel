@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Bell, Shield, MapPin, Radio, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, MapPin, Clock, Search, User, AlertTriangle, ShieldAlert, Info, X } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const [time, setTime] = useState<string>('');
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { hour12: false }) + ' IST');
+      setTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST');
     };
     updateClock();
     const interval = setInterval(updateClock, 1000);
@@ -17,92 +16,127 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <header className="h-16 border-b border-dark-700/80 bg-dark-900/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-50">
-      {/* Brand & System Status */}
-      <div className="flex items-center space-x-4">
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="p-2 bg-brand-cyan/10 border border-brand-cyan/40 rounded-lg text-brand-cyan shadow-neon-cyan"
-        >
-          <Activity className="h-5 w-5 animate-pulse" />
-        </motion.div>
+    <header className="h-16 border-b border-slate-200 bg-white sticky top-0 z-50 flex items-center justify-between px-8 shadow-sm">
+      {/* Brand */}
+      <div className="flex items-center space-x-3">
+        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+          AI
+        </div>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-mono text-lg font-bold tracking-wider text-white">
-              AEROINTEL <span className="text-xs px-2 py-0.5 bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40 rounded-md">GOTHAM-OS v2.4</span>
-            </h1>
-          </div>
-          <p className="text-[11px] text-gray-400 font-mono flex items-center gap-2">
-            <span>NASA/CPCB DIRECT SATELLITE STREAM</span>
-            <span className="text-gray-600">•</span>
-            <span className="text-brand-green flex items-center gap-1">
-              <Radio className="h-3 w-3 animate-ping" /> 904 CAAQMS STATIONS ONLINE
+            <span className="font-bold text-slate-900 text-base tracking-tight">AeroIntel</span>
+            <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md font-semibold border border-slate-200">
+              Enterprise
             </span>
-          </p>
+          </div>
+          <p className="text-xs font-medium text-slate-500">National Air Quality Intelligence Platform</p>
         </div>
       </div>
 
-      {/* Center Context Pill */}
-      <div className="hidden lg:flex items-center space-x-3 px-4 py-1.5 glass-panel rounded-full text-xs font-mono">
-        <div className="flex items-center gap-1.5 text-brand-cyan">
-          <MapPin className="h-3.5 w-3.5" />
-          <span className="font-bold">DELHI-NCR METRO ZONE</span>
-        </div>
-        <span className="text-gray-600">|</span>
-        <div className="flex items-center gap-1.5 text-gray-300">
-          <Clock className="h-3.5 w-3.5 text-brand-amber" />
-          <span>{time || '19:30:00 IST'}</span>
-        </div>
+      {/* Global Search */}
+      <div className="hidden md:flex items-center space-x-2 bg-slate-100/80 border border-slate-200 px-3.5 py-2 rounded-xl w-80 text-xs">
+        <Search className="h-4 w-4 text-slate-400 shrink-0" />
+        <input
+          type="text"
+          placeholder="Search wards, sensors, or station IDs..."
+          className="bg-transparent border-none text-slate-800 font-normal placeholder-slate-400 focus:outline-none w-full text-xs"
+        />
+        <kbd className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded-md">
+          ⌘K
+        </kbd>
       </div>
 
-      {/* Right Actions */}
+      {/* Right Tools & User Info */}
       <div className="flex items-center space-x-4">
-        {/* Notification Bell Dropdown */}
+        <div className="hidden lg:flex items-center space-x-3 text-xs text-slate-600 border-r border-slate-200 pr-4 font-medium">
+          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+            <MapPin className="h-3.5 w-3.5 text-slate-500" />
+            <span>NCR Region</span>
+          </div>
+          <div className="flex items-center gap-1.5 font-mono text-slate-500">
+            <Clock className="h-3.5 w-3.5" />
+            <span>{time || '19:30:00 IST'}</span>
+          </div>
+        </div>
+
+        {/* System Status */}
+        <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="hidden sm:inline">CPCB Feed Active</span>
+        </div>
+
+        {/* Interactive Notifications Bell */}
         <div className="relative">
-          <motion.button 
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="p-2 text-gray-300 hover:text-white bg-dark-800/80 hover:bg-dark-700 rounded-lg border border-dark-700 relative transition-all"
+            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl border border-slate-200 relative transition-colors focus:outline-none"
+            title="System Notifications"
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand-red rounded-full animate-pulse"></span>
-          </motion.button>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full"></span>
+          </button>
 
-          <AnimatePresence>
-            {notificationsOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-2 w-80 glass-panel border border-dark-700 rounded-xl p-4 shadow-2xl z-50 font-mono text-xs"
-              >
-                <div className="flex justify-between items-center pb-2 border-b border-dark-700 mb-3">
-                  <span className="font-bold text-white">LIVE SYSTEM ALERTS</span>
-                  <span className="text-[10px] bg-brand-red/20 text-brand-red px-1.5 py-0.5 rounded">3 NEW</span>
+          {/* Notifications Dropdown Panel */}
+          {notificationsOpen && (
+            <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-lg p-4 z-50 text-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-900">System Alerts</span>
+                  <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full border border-blue-200">
+                    3 New
+                  </span>
                 </div>
-                <div className="space-y-2.5">
-                  <div className="p-2 bg-dark-900/80 border-l-2 border-brand-red rounded">
-                    <div className="text-brand-red font-bold">AQI Spike Alert</div>
-                    <div className="text-gray-400 text-[11px]">Ward 17 crossed 390 AQI limit.</div>
+                <button
+                  onClick={() => setNotificationsOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="mt-3 space-y-2.5">
+                <div className="p-3 bg-red-50/60 border border-red-200/80 rounded-xl space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-red-700">
+                    <ShieldAlert className="h-3.5 w-3.5 text-red-600" />
+                    <span>Severe AQI Spike Flagged</span>
                   </div>
-                  <div className="p-2 bg-dark-900/80 border-l-2 border-brand-amber rounded">
-                    <div className="text-brand-amber font-bold">Wind Shift Warning</div>
-                    <div className="text-gray-400 text-[11px]">SSW vector spreading dust northeast.</div>
-                  </div>
+                  <p className="text-slate-600 text-[11px] font-normal leading-relaxed">
+                    Ward 17 (Okhla Phase II) crossed the 390 AQI threshold. Immediate intervention required.
+                  </p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+
+                <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-amber-800">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                    <span>Unmitigated Dust Source</span>
+                  </div>
+                  <p className="text-slate-600 text-[11px] font-normal leading-relaxed">
+                    Sentinel-2 satellite sweep detected uncovered excavation at Permit #CNST-2026-8891.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-blue-50/60 border border-blue-200/80 rounded-xl space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-blue-700">
+                    <Info className="h-3.5 w-3.5 text-blue-600" />
+                    <span>Directive Dispatched</span>
+                  </div>
+                  <p className="text-slate-600 text-[11px] font-normal leading-relaxed">
+                    Water sprinkling directive #REC-01 assigned to Municipal Public Health Division.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* User Profile */}
-        <div className="flex items-center space-x-3 border-l border-dark-700/80 pl-4">
-          <div className="w-8 h-8 rounded-lg bg-brand-cyan/20 border border-brand-cyan/50 flex items-center justify-center text-brand-cyan font-mono font-bold text-xs shadow-neon-cyan">
-            CMD
+        <div className="flex items-center space-x-3 pl-2">
+          <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
+            <User className="h-4 w-4" />
           </div>
-          <div className="hidden sm:block text-left text-xs font-mono">
-            <div className="font-semibold text-gray-200">Director General</div>
-            <div className="text-brand-cyan text-[10px]">Command Level 1</div>
+          <div className="hidden sm:block text-left text-xs">
+            <div className="font-semibold text-slate-900 leading-none">Member Secretary</div>
+            <div className="text-slate-500 font-medium text-[11px] mt-0.5">Pollution Control Board</div>
           </div>
         </div>
       </div>
