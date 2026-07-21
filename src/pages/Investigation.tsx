@@ -1,5 +1,5 @@
 import React from 'react';
-import { Truck, HardHat, Factory, Clock, AlertCircle, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import { Truck, HardHat, Factory } from 'lucide-react';
 import { mockEvidenceItems } from '../mock/data';
 
 export const Investigation: React.FC = () => {

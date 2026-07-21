@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Bot, ShieldCheck } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { mockAttributionData } from '../mock/data';
 
 export const Attribution: React.FC = () => {

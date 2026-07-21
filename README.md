@@ -49,12 +49,11 @@ pytest
 ### Run the Command Center frontend
 
 ```powershell
-cd frontend
 npm install
 npm run dev
 ```
 
-The React/Vite frontend opens the AeroIntel Command Center: city KPIs, interactive AQI map, heatmap layer, station markers, hotspot investigation entry points, weather/wind context, sensor health, worst wards, and city pollution trend. It consumes the backend APIs under `/api/v1/command-center`, `/api/v1/heatmap`, `/api/v1/hotspots`, and `/api/v1/sensor-health`. The frontend expects the backend at `http://127.0.0.1:8000`; override it with `VITE_API_BASE_URL` if needed.
+The active React/Vite frontend lives in the root `src/` directory and opens the AeroIntel Command Center: city KPIs, interactive AQI map, heatmap layer, station markers, hotspot investigation entry points, weather/wind context, sensor health, worst wards, and city pollution trend. It consumes the backend APIs under `/api/v1/command-center`, `/api/v1/hotspots`, and `/api/v1/sensor-health`, with deterministic seeded fallback data when the backend is unavailable. The frontend expects the backend at `http://127.0.0.1:8000`; override it with `VITE_API_BASE_URL` if needed.
 
 ### Source Attribution Contract
 
