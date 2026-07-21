@@ -20,6 +20,18 @@ class GeoMasterRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    def get_ward_by_code(self, ward_code: str) -> WardRead | None:
+        statement = (
+            select(Ward, func.ST_AsGeoJSON(Ward.boundary).label("boundary_geojson"))
+            .where(Ward.code == ward_code)
+            .limit(1)
+        )
+        row = self.db.execute(statement).first()
+        if row is None:
+            return None
+        ward, boundary_geojson = row
+        return self._ward_to_schema(ward, boundary_geojson)
+
     def find_ward_containing_point(self, point: GeoPoint) -> WardRead | None:
         point_geometry = self._point_geometry(point)
         statement = (

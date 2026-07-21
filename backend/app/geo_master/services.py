@@ -13,6 +13,9 @@ class SupportsCoordinates(Protocol):
 
 
 class GeoMasterRepositoryProtocol(Protocol):
+    def get_ward_by_code(self, ward_code: str) -> Any | None:
+        ...
+
     def find_ward_containing_point(self, point: GeoPoint) -> Any | None:
         ...
 
@@ -42,6 +45,11 @@ def calculate_distance_meters(origin: GeoPoint, destination: GeoPoint) -> float:
 class GeoMasterService:
     def __init__(self, repository: GeoMasterRepositoryProtocol | None) -> None:
         self.repository = repository
+
+    def get_ward_by_code(self, ward_code: str) -> Any | None:
+        if self.repository is None:
+            raise RuntimeError("Geo master repository is required for ward lookup.")
+        return self.repository.get_ward_by_code(ward_code)
 
     def find_ward_containing_point(self, point: GeoPoint) -> Any | None:
         if self.repository is None:

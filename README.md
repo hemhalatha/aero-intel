@@ -377,6 +377,29 @@ Supported downstream consumers:
 
 Example payloads live in `backend/data/intelligence_contract_examples.json`.
 
+
+## Operations, Advisory, and Verification Contract
+
+`backend/app/operations_contract` defines the read-only API boundary for operations, citizen advisory, and intervention-verification modules. Consumers should use this contract instead of reading Member 1 environmental, geo, hotspot, or sensor-health tables directly.
+
+FastAPI routes:
+
+- `GET /api/v1/operations-contract/wards/{ward_code}/state`
+- `GET /api/v1/operations-contract/wards/{ward_code}/readings`
+- `GET /api/v1/operations-contract/wards/{ward_code}/readings/around`
+- `GET /api/v1/operations-contract/wards/{ward_code}/intervention-verification`
+
+The ward-state response exposes current ward AQI, CPCB AQI band, pollutant readings, hotspot status, hotspot recurrence history, ward details, sensor-health snapshots, and a data-quality rollup. It is designed for operations dashboards and citizen advisory workflows that need a reliable current view without knowing the database layout.
+
+The generic time-window endpoint accepts `start_at`, `end_at`, optional `pollutant`, optional `station_code`, and optional `selected_at`. The `/readings/around` helper accepts a selected timestamp plus a configurable context window for investigation timelines.
+
+The intervention-verification endpoint accepts `intervention_at`, optional `baseline_hours`, optional `evaluation_hours`, optional `pollutant`, optional `station_code`, optional `intervention_id`, and optional `forecast_location_code`. It returns three stable segments:
+
+- `pre_intervention_baseline`
+- `predicted_evaluation_window`
+- `actual_post_intervention`
+
+The contract only retrieves and packages environmental, weather, wind, hotspot, ward, and data-quality context. It does not implement citizen-advisory rules, intervention scoring, forecasting, attribution, or hotspot detection.
 ## Traffic Evidence Collector
 
 `backend/app/investigations/traffic.py` provides an independent traffic evidence collector for hotspot investigations. It identifies nearby road segments, retrieves current traffic density, compares against historical traffic baselines for comparable hours, calculates density deviation, checks rush-hour correlation, evaluates road proximity, optionally enriches evidence with NO2 and CO patterns from environmental readings, and returns a standardized evidence object.
