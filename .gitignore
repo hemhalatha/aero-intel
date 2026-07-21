@@ -1,8 +1,25 @@
-.venv/
-__pycache__/
-.pytest_cache/
-*.py[cod]
-.env
+# Node
 node_modules/
+frontend/node_modules/
 dist/
-pytest-cache-files-*/
+
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+.venv/
+
+# Environment
+.env
+*.env
+
+# Testing
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
