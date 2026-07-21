@@ -409,6 +409,44 @@ It proves three predictable hotspot scenarios:
 
 A separate assertion verifies that the investigation remains `PARTIALLY_COMPLETE` and preserves successful evidence when one evidence collector fails.
 
+
+## Evidence Graph Module
+
+`backend/app/evidence_graph` converts hotspot context and standardized evidence into an explainable, reproducible graph. It uses NetworkX internally to assemble the graph, then persists graph versions in `evidence_graphs`, `evidence_graph_nodes`, and `evidence_graph_edges` so later reasoning paths can be replayed.
+
+Supported node types:
+
+- `HOTSPOT`
+- `EVIDENCE`
+- `POLLUTION_SOURCE`
+- `WEATHER_CONDITION`
+- `GEOGRAPHIC_ENTITY`
+- `POLLUTANT`
+
+Supported edge types:
+
+- `SUPPORTS`
+- `CONTRADICTS`
+- `NEAR`
+- `UPWIND_OF`
+- `ACTIVE_DURING`
+- `CORRELATED_WITH`
+- `OBSERVED_AT`
+
+FastAPI routes:
+
+- `POST /api/v1/evidence-graphs/investigations/{investigation_id}` builds and optionally persists a graph from the downstream intelligence contract.
+- `POST /api/v1/evidence-graphs/hotspots/{hotspot_id}` builds and optionally persists a graph from a hotspot handoff.
+- `GET /api/v1/evidence-graphs/investigations/{investigation_id}` returns the latest persisted graph for an investigation.
+- `GET /api/v1/evidence-graphs/hotspots/{hotspot_id}` returns the latest persisted graph for a hotspot.
+
+Responses are frontend-friendly JSON with stable `nodes`, `edges`, labels, properties, and graph metrics. The graph is not a black-box model and does not perform source attribution; it organizes existing evidence relationships for explanation, review, and downstream reasoning.
+
+Apply the migration after the common evidence repository migration:
+
+```powershell
+psql $env:DATABASE_URL -f backend/database/migrations/007_evidence_graph.sql
+```
 ## Pollution Fingerprint Engine
 
 `backend/app/pollution_fingerprint` derives structured source-fingerprint features from the downstream intelligence contract. It consumes pollutant snapshots, historical ward AQI, wind/evidence metadata, and standardized evidence bundles without reading Member 1 database tables directly.

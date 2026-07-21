@@ -13,6 +13,7 @@ from .database import (
     _diagnose_operational_error,
 )
 from .environmental_data.routes import router as environmental_data_router
+from .evidence_graph.routes import router as evidence_graph_router
 from .heatmap.routes import router as heatmap_router
 from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
 from .intelligence_contract.routes import router as intelligence_contract_router
@@ -32,6 +33,7 @@ app.add_middleware(
 )
 app.include_router(command_center_router)
 app.include_router(environmental_data_router)
+app.include_router(evidence_graph_router)
 app.include_router(heatmap_router)
 app.include_router(hotspot_lifecycle_router)
 app.include_router(investigations_router)
