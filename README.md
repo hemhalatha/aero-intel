@@ -378,6 +378,36 @@ Supported downstream consumers:
 Example payloads live in `backend/data/intelligence_contract_examples.json`.
 
 
+
+## Member 1 End-to-End Workflow Verification
+
+The deterministic workflow verifier in `backend/tests/test_member1_workflow_integration.py` exercises the complete Member 1 pipeline without requiring live external APIs or a local PostGIS database:
+
+```powershell
+pytest backend/tests/test_member1_workflow_integration.py -q -p no:cacheprovider
+```
+
+The verifier runs:
+
+- environmental ingestion, seeded fallback behavior, normalization, quality rejection, and in-memory storage
+- sensor-health validation and reliable-reading checks
+- Command Center aggregation and AQI heatmap generation
+- hotspot detection and lifecycle persistence
+- investigation creation from `hotspot.created`
+- traffic, construction/land-use, and industrial evidence collection
+- supporting and contradictory evidence retrieval through the common evidence contract
+- downstream intelligence handoff with standardized evidence bundles and canonical investigation events
+- pollutant time-series retrieval for Pollution Fingerprinting
+- follow-up evidence collection for Next Best Evidence workflows
+- before/after environmental windows for Intervention Verification
+
+It proves three predictable hotspot scenarios:
+
+- construction-led hotspot: construction evidence supports, traffic evidence contradicts
+- traffic-led hotspot: traffic evidence supports
+- industrial-led hotspot: industrial evidence supports
+
+A separate assertion verifies that the investigation remains `PARTIALLY_COMPLETE` and preserves successful evidence when one evidence collector fails.
 ## Operations, Advisory, and Verification Contract
 
 `backend/app/operations_contract` defines the read-only API boundary for operations, citizen advisory, and intervention-verification modules. Consumers should use this contract instead of reading Member 1 environmental, geo, hotspot, or sensor-health tables directly.
