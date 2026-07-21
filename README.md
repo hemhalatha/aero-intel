@@ -342,6 +342,41 @@ Apply the common evidence migration after the investigation tables are available
 psql $env:DATABASE_URL -f backend/database/migrations/006_common_evidence_repository.sql
 ```
 
+
+## Downstream Intelligence Integration Contract
+
+`backend/app/intelligence_contract` defines the stable boundary between Member 1's environmental/investigation pipeline and downstream intelligence modules. Consumers should use this contract instead of reading environmental, hotspot, investigation, or collector tables directly.
+
+FastAPI routes:
+
+- `GET /api/v1/intelligence-contract/hotspots/{hotspot_id}`
+- `GET /api/v1/intelligence-contract/investigations/{investigation_id}`
+
+Query parameters:
+
+- `start_at` and `end_at` select the historical comparison window; defaults to the last 24 hours.
+- `pollutants` can be repeated to request specific series, for example `?pollutants=PM2.5&pollutants=NO2`.
+
+The response includes hotspot ID, investigation ID, hotspot coordinates when present in detection context, current AQI, pollutant snapshot, historical ward AQI, historical pollutant series, current weather/wind, data-quality metadata, the standardized evidence bundle, supporting evidence, contradictory evidence, and canonical events.
+
+Canonical events exposed to consumers:
+
+- `hotspot.created`
+- `evidence.collected`
+- `investigation.initial_collection_completed`
+- `investigation.completed`
+
+Supported downstream consumers:
+
+- pollution fingerprinting
+- evidence graph generation
+- source attribution
+- uncertainty analysis
+- next best evidence
+- forecasting
+
+Example payloads live in `backend/data/intelligence_contract_examples.json`.
+
 ## Traffic Evidence Collector
 
 `backend/app/investigations/traffic.py` provides an independent traffic evidence collector for hotspot investigations. It identifies nearby road segments, retrieves current traffic density, compares against historical traffic baselines for comparable hours, calculates density deviation, checks rush-hour correlation, evaluates road proximity, optionally enriches evidence with NO2 and CO patterns from environmental readings, and returns a standardized evidence object.

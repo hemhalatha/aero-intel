@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
 from sqlalchemy.exc import OperationalError
 
 from .attribution import attribute_sources, generate_explanation
@@ -16,6 +15,7 @@ from .database import (
 from .environmental_data.routes import router as environmental_data_router
 from .heatmap.routes import router as heatmap_router
 from .hotspot_lifecycle.routes import router as hotspot_lifecycle_router
+from .intelligence_contract.routes import router as intelligence_contract_router
 from .investigations.routes import router as investigations_router
 from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
@@ -33,8 +33,8 @@ app.include_router(environmental_data_router)
 app.include_router(heatmap_router)
 app.include_router(hotspot_lifecycle_router)
 app.include_router(investigations_router)
+app.include_router(intelligence_contract_router)
 app.include_router(sensor_health_router)
-
 
 
 @app.exception_handler(DatabaseConfigurationError)
@@ -68,10 +68,11 @@ async def sqlalchemy_operational_exception_handler(
         status_code=503,
         content={"detail": _diagnose_operational_error(exc, get_database_url())},
     )
+
+
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "module": "aerointel"}
-
 
 
 @app.get("/health/database")
@@ -80,6 +81,8 @@ def database_health_check() -> JSONResponse:
         return JSONResponse(status_code=200, content=check_database_connection())
     except (DatabaseConfigurationError, DatabaseConnectionError) as exc:
         return JSONResponse(status_code=503, content={"status": "error", "detail": str(exc)})
+
+
 @app.post("/api/v1/attributions", response_model=AttributionResponse, status_code=201)
 def create_attribution(bundle: EvidenceBundle) -> AttributionResponse:
     rankings = attribute_sources(bundle)

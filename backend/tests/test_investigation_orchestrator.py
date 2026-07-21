@@ -191,5 +191,24 @@ def test_supports_additional_evidence_collection_on_existing_investigation() -> 
 
     assert updated.id == investigation.id
     assert len(repository.evidence) == 3
-    assert repository.events[-1].event_type == "investigation.initial_collection_completed"
-    assert repository.events[-1].payload["reason"] == "next_best_evidence"
+    initial_completion_events = [
+        event for event in repository.events if event.event_type == "investigation.initial_collection_completed"
+    ]
+    assert initial_completion_events[-1].payload["reason"] == "next_best_evidence"
+    assert repository.events[-1].event_type == "investigation.completed"
+
+def test_publishes_investigation_completed_when_all_collectors_succeed() -> None:
+    repository = FakeInvestigationRepository()
+    service = InvestigationOrchestrator(
+        repository=repository,
+        context_provider=FakeContextProvider(),
+        collectors=[StaticCollector("traffic"), StaticCollector("industrial")],
+    )
+
+    investigation = service.handle_hotspot_created(hotspot_created_event(), now=NOW)
+
+    assert investigation.status == InvestigationStatus.COMPLETE
+    assert [event.event_type for event in repository.events][-2:] == [
+        "investigation.initial_collection_completed",
+        "investigation.completed",
+    ]

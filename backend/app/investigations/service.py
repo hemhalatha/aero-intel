@@ -234,18 +234,21 @@ class InvestigationOrchestrator:
                 }
             )
         )
+        completion_payload = {
+            "status": status.value,
+            "successful_collectors": successes,
+            "failed_collectors": failures,
+            "collector_count": len(selected),
+            "reason": reason,
+        }
         self._publish_event(
             completed.id,
             "investigation.initial_collection_completed",
-            {
-                "status": status.value,
-                "successful_collectors": successes,
-                "failed_collectors": failures,
-                "collector_count": len(selected),
-                "reason": reason,
-            },
+            completion_payload,
             timestamp,
         )
+        if status == InvestigationStatus.COMPLETE:
+            self._publish_event(completed.id, "investigation.completed", completion_payload, timestamp)
         self.repository.commit()
         return completed
 
