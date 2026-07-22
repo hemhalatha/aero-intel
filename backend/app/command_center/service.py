@@ -68,13 +68,16 @@ class CommandCenterAggregationService:
         station_readings: list[StationLatestState],
         station_health,
     ) -> list[StationLatestState]:
-        if not station_readings:
-            return []
-        all_codes = {item.station_code for item in station_health} if station_health else set()
-        if not all_codes:
-            return station_readings
-        return [item for item in station_readings if item.station_code in all_codes]
-
+        reliable_codes = {
+            item.station_code
+            for item in station_health
+            if item.status == SensorHealthStatus.ONLINE and item.is_reliable
+        }
+        return [
+            item
+            for item in station_readings
+            if item.station_code in reliable_codes and item.data_quality_status == "valid"
+        ]
 
     def _city_pollution_trend(self, now: datetime) -> list[CityPollutionTrendPoint]:
         readings = self.time_series_service.get_readings_for_time_window(
@@ -95,3 +98,5 @@ class CommandCenterAggregationService:
             for observed_at, items in sorted(grouped.items())
             if items
         ]
+
+

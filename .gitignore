@@ -1,6 +1,5 @@
 # Node
 node_modules/
-frontend/node_modules/
 dist/
 
 # Python
@@ -18,6 +17,13 @@ backend/.venv/
 
 # Testing
 .pytest_cache/
+backend/pytest-cache-files-*/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!backend/.env.example
 
 # IDE
 .vscode/

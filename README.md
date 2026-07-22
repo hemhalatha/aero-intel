@@ -14,7 +14,6 @@
   - [Slide 4 \& 5: The 8 Core Modules](#slide-4--5-the-8-core-modules)
   - [Slide 6: System Architecture](#slide-6-system-architecture)
   - [Slide 7: Multi-Agent AI Workflow](#slide-7-multi-agent-ai-workflow)
-  - [Slide 8: Team Allocation \& Workload Ownership](#slide-8-team-allocation--workload-ownership)
   - [Slide 9: Demonstrated Impact \& Evaluation Alignment](#slide-9-demonstrated-impact--evaluation-alignment)
 - [2. Comprehensive Technical Engineering Blueprint](#2-comprehensive-technical-engineering-blueprint)
   - [Module 1: AI Command Center](#module-1-ai-command-center)
@@ -130,13 +129,8 @@
 
 ---
 
-### Slide 8: Team Allocation & Workload Ownership
 
-Designed for complete vertical slice balance across a 3-member engineering team:
 
-* 👤 **Member 1 — Data, Detection & Investigation:** Geo Master schema, spatial queries, ingestion scheduler, sensor health, hotspot lifecycle, evidence collectors (Traffic, Construction, Industrial), Command Center Map & Investigation Detective Board UI.
-* 👤 **Member 2 — Intelligence & Decision Support:** Satellite & Biomass evidence collectors, evidence graph repository, source attribution scoring engine, explanation generator, baseline AQI forecaster, recommendation engine, scenario simulator, Attribution Diagnosis Cards & Scenario Chart UI.
-* 👤 **Member 3 — Operations, Advisory & Frontend Lead:** Shared UI design system, department mapping, task assignment workflow, accountability & escalation engine, citizen advisory backend & frontend.
 
 ---
 
@@ -382,5 +376,6 @@ npm run dev
   ```
 
 ---
+
 
 
