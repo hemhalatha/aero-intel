@@ -1,444 +1,299 @@
-# 🌍 AeroIntel — AI-Powered Urban Air Quality Command Center
+# AeroIntel
 
-> **From Reactive Monitoring to Evidence-Based Intervention**  
-> *Smart India Hackathon Project | Theme: Smart Cities / Environmental Intelligence / Geospatial Analytics / Public Health*
+AeroIntel is an AI-powered Urban Air Quality Command Center for monitoring city-wide pollution, detecting hotspots, collecting investigation evidence, and handing structured environmental intelligence to downstream decision modules.
 
----
+The project is built as a modular monolith with clear backend module boundaries, a React command-center frontend, and a PostgreSQL/PostGIS data foundation. It is designed for deterministic demos as well as integration with real public environmental data sources.
 
-## 📋 Table of Contents
+## What AeroIntel Does
 
-- [1. Executive Summary \& Pitch Presentation](#1-executive-summary--pitch-presentation)
-  - [Slide 1: Vision \& Solution Overview](#slide-1-vision--solution-overview)
-  - [Slide 2: Problem Context \& The Intelligence Gap](#slide-2-problem-context--the-intelligence-gap)
-  - [Slide 3: Closed-Loop Decision Engine](#slide-3-closed-loop-decision-engine)
-  - [Slide 4 \& 5: The 8 Core Modules](#slide-4--5-the-8-core-modules)
-  - [Slide 6: System Architecture](#slide-6-system-architecture)
-  - [Slide 7: Multi-Agent AI Workflow](#slide-7-multi-agent-ai-workflow)
-  - [Slide 9: Demonstrated Impact \& Evaluation Alignment](#slide-9-demonstrated-impact--evaluation-alignment)
-- [2. Comprehensive Technical Engineering Blueprint](#2-comprehensive-technical-engineering-blueprint)
-  - [Module 1: AI Command Center](#module-1-ai-command-center)
-  - [Module 2: Hotspot Detection Engine](#module-2-hotspot-detection-engine)
-  - [Module 3: AI Multi-Source Investigation](#module-3-ai-multi-source-investigation)
-  - [Module 4: Evidence Collection \& Source Attribution](#module-4-evidence-collection--source-attribution)
-  - [Module 5: Prediction Engine \& Scenario Simulator](#module-5-prediction-engine--scenario-simulator)
-  - [Module 6: AI Actionable Interventions](#module-6-ai-actionable-interventions)
-  - [Module 7: Department Assignment \& Accountability](#module-7-department-assignment--accountability)
-  - [Module 8: Citizen Health Risk Advisory](#module-8-citizen-health-risk-advisory)
-- [3. Database Schema \& Geo Master Spatial Operations](#3-database-schema--geo-master-spatial-operations)
-- [4. API Endpoint Contracts \& Data Specifications](#4-api-endpoint-contracts--data-specifications)
-- [5. How to Run \& Verification Guide](#5-how-to-run--verification-guide)
+AeroIntel turns raw environmental observations into operational intelligence:
 
----
+1. Ingest monitoring-station, pollutant, weather, wind, and seeded scenario data.
+2. Normalize readings, validate quality, reject impossible values, remove duplicates, and attach ward context.
+3. Store reliable environmental time-series data with quality metadata.
+4. Generate AQI heatmaps and ward summaries from reliable monitoring stations.
+5. Detect hotspot candidates using configurable thresholds, historical baselines, pollutant spikes, and sensor reliability checks.
+6. Manage hotspot lifecycle states and publish domain events.
+7. Trigger investigations and collect traffic, construction, land-use, and industrial evidence independently.
+8. Store standardized evidence with version history.
+9. Produce pollution fingerprints, evidence graphs, uncertainty assessments, and downstream integration contracts.
+10. Present the current city state in a premium command-center dashboard.
 
-# 1. Executive Summary & Pitch Presentation
+## Core Capabilities
 
-### Slide 1: Vision & Solution Overview
-**AeroIntel** is a closed-loop urban air quality decision intelligence platform designed for municipal corporations and State Pollution Control Boards. While existing systems function as static dashboards that simply display AQI numbers, AeroIntel fuses continuous monitoring station data (CAAQMS), satellite remote sensing (Sentinel-5P/MODIS), mobility feeds, meteorological forecasts, and geospatial land-use layers to:
+| Area | Capabilities |
+| --- | --- |
+| Geo master | Cities, wards, monitoring stations, roads, land-use zones, PostGIS polygons, point containment, radius search, distance calculations |
+| Environmental data | Provider-independent adapters, seeded fallback data, normalization, quality validation, pollutant/weather/wind time-series storage |
+| Sensor health | ONLINE, DELAYED, DEGRADED, and OFFLINE classification with reliability checks and health history |
+| AQI engine | Deterministic CPCB AQI band classification through configurable thresholds |
+| Heatmap | IDW interpolation, configurable grid resolution, bounding boxes, ward-level AQI summaries, unhealthy sensor weighting |
+| Command Center | Optimized dashboard aggregation API and React UI with map, KPIs, trends, weather, wind, stations, wards, and hotspots |
+| Hotspots | Detection service, lifecycle management, status history, observations, and event publishing |
+| Investigations | Event-driven orchestration, pluggable evidence collectors, partial-failure tolerance, follow-up evidence collection |
+| Evidence | Common evidence repository with supporting/contradictory filters and version history |
+| Intelligence | Pollution fingerprints, explainable evidence graph, uncertainty scoring, next-best-evidence requests, integration contracts |
 
-1. **Explain WHY pollution happens** (*Geospatial Source Attribution with Confidence Scores*)
-2. **Predict WHAT happens next** (*Hyperlocal 24-72h AQI Forecasting & Scenario Simulation*)
-3. **Recommend HOW to act** (*Prioritized Multi-Agency Interventions with ROI & Effort Estimates*)
-4. **Assign WHO is accountable** (*Inter-Departmental Task Workflow & Auto-Escalation Engine*)
-5. **Protect CITIZENS proactively** (*Multilingual Ward-Level Vulnerability Advisories*)
+## Architecture
 
----
-
-### Slide 2: Problem Context & The Intelligence Gap
-* **The National Crisis:** India's air pollution crisis causes **1.67 million premature deaths annually** (*The Lancet Planetary Health*). 24 of India's 50 most polluted cities are Tier 1 or Tier 2 urban centers.
-* **The Data Exists:** India has deployed over **900 Continuous Ambient Air Quality Monitoring Stations (CAAQMS)** under the National Clean Air Programme (NCAP).
-* **The CAG Audit Insight:** A 2024 CAG audit found that **only 31% of cities with monitoring data had any actionable multi-agency response protocols** linked to those readings.
-* **The Missing Intelligence Layer:** City administrations do not need more red markers on a dashboard. They need **geospatial attribution** (which sources are responsible at this location right now), **predictive forecasting** (what AQI will be in 24 hours under different intervention scenarios), and **enforcement intelligence** (where to deploy inspectors for maximum impact).
-
----
-
-### Slide 3: Closed-Loop Decision Engine
+AeroIntel follows a modular monolith architecture. Each backend module keeps API routes, schemas, services, repositories, and models separate where applicable.
 
 ```text
-  [ 📡 1. MONITOR ] ──> [ 🚨 2. DETECT ] ──> [ 🕵️‍♂️ 3. INVESTIGATE ]
-                                                         │
-  [ 🎯 6. RECOMMEND ] <── [ 🔮 5. FORECAST ] <── [ 🧩 4. ATTRIBUTE ]
-          │
-          └──> [ 📋 7. ASSIGN & TRACK ] ──> [ 📢 8. CITIZEN ADVISORY ]
+React + Vite Command Center
+        |
+        | REST /api/v1
+        v
+FastAPI backend
+        |
+        | SQLAlchemy / GeoAlchemy2
+        v
+PostgreSQL + PostGIS
 ```
 
----
+Key backend principles:
 
-### Slide 4 & 5: The 8 Core Modules
+- API routes stay thin and delegate business logic to services.
+- Services expose reusable methods for other modules.
+- Repositories own persistence concerns.
+- Pydantic schemas define stable contracts.
+- Downstream modules consume service/API contracts instead of internal database tables.
+- Demo data is deterministic and clearly separated from real/provider-sourced data.
 
-1. **AI Command Center (Module 1):** Full-screen interactive GIS map with IDW spatial AQI heatmaps, station status markers, wind vector overlays, weather summary widgets, city KPIs, and worst ward panels.
-2. **Hotspot Detection Engine (Module 2):** Real-timeWatcher Agent combining CPCB statutory threshold checks with rolling Z-score statistical anomaly detection and ward deduplication.
-3. **Multi-Source AI Investigation (Module 3):** Interactive "Detective Board" timeline triggering 5 parallel evidence collectors: Satellite aerosol/dust signatures, Traffic density anomalies, Construction permits, Industrial stack registry, and Land-use zoning.
-4. **Evidence Attribution & Explanation (Module 4):** Weighted multi-factor scoring engine attributing pollution across Construction Dust, Vehicular Emissions, Industrial Emissions, Road Dust, and Biomass Burning with confidence percentages and natural-language "Why?" evidence breakdowns.
-5. **Hyperlocal Forecast & Scenario Simulator (Module 5):** Time-series baseline forecasting (Scenario A: No Action) vs. Intervention effect modifier simulation (Scenario B: With Action) displaying headline stats like `"-42 AQI Points Saved"`.
-6. **AI Recommendations Engine (Module 6):** Ranked actionable intervention cards based on expected AQI drop, priority (High/Med/Low), and implementation effort (Low/Med/High), with interactive toggles linked directly to the Scenario Simulator.
-7. **Department Assignment & Accountability (Module 7):** Action-to-Department task routing (Municipal Corp, Traffic Police, Pollution Control Board), SLA tracking, repeat-hotspot recurrence tracking, and senior officer escalation banners.
-8. **Citizen Health Risk Advisory (Module 8):** Ward-level health guidance tailored to vulnerable populations (General, Schools, Elderly) rendered in regional languages (English, Hindi, Kannada, Tamil).
-
----
-
-### Slide 6: System Architecture
+## Repository Layout
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 EXTERNAL DATA FEEDS                                    │
-│       CPCB / CAAQMS  │  OpenWeatherMap / IMD  │  Sentinel-5P Satellite  │ GIS Land Use │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              FASTAPI BACKEND SERVICES                                  │
-│  ┌───────────────────────┐   ┌────────────────────────┐   ┌─────────────────────────┐  │
-│  │ GeoMaster & PostGIS   │   │  Evidence Collectors   │   │ Baseline Forecaster     │  │
-│  └───────────────────────┘   └────────────────────────┘   └─────────────────────────┘  │
-│  ┌───────────────────────┐   ┌────────────────────────┐   ┌─────────────────────────┐  │
-│  │ Attribution Engine    │   │  Scenario Simulator    │   │ Task & Escalation Engine│  │
-│  └───────────────────────┘   └────────────────────────┘   └─────────────────────────┘  │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                           POSTGRESQL + POSTGIS DATA STORE                              │
-│       stations  │  station_readings  │  hotspots  │  investigations  │  tasks              │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              REACT + TAILWIND FRONTEND                                 │
-│ Command Center Map │ Detective Board │ Attribution Diagnosis │ Scenario Line Charts    │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+.
+|-- backend/
+|   |-- app/
+|   |   |-- aqi/                       # CPCB AQI classification engine
+|   |   |-- command_center/            # Dashboard aggregation API
+|   |   |-- environmental_data/        # Ingestion, normalization, time-series storage
+|   |   |-- evidence_graph/            # Explainable graph persistence and API
+|   |   |-- geo_master/                # Cities, wards, stations, roads, land-use, spatial services
+|   |   |-- heatmap/                   # AQI interpolation and ward summaries
+|   |   |-- hotspot_lifecycle/         # Hotspot records, state transitions, events
+|   |   |-- investigations/            # Orchestrator and evidence collectors
+|   |   |-- intelligence_contract/     # Handoff contract for downstream intelligence modules
+|   |   |-- operations_contract/       # Read-only contracts for operations, advisory, verification
+|   |   |-- pollution_fingerprint/     # Feature extraction and source pattern matching
+|   |   |-- sensor_health/             # Sensor reliability and health status
+|   |   |-- uncertainty/               # Uncertainty and next-best-evidence rules
+|   |   |-- database.py                # Database URL loading, connectivity, and diagnostics
+|   |   `-- main.py                    # FastAPI application entrypoint
+|   |-- database/migrations/          # SQL migrations
+|   |-- data/                         # Seed datasets
+|   |-- scripts/                      # Reproducible seed loaders
+|   `-- tests/                        # Backend tests
+|-- frontend/                         # Wrapper for the expected frontend workflow
+|-- src/                              # Active React/Vite frontend source
+|-- DESIGN-apple.md                   # Frontend design system
+|-- render.yaml                       # Render deployment blueprint
+|-- .env.example                      # Safe environment template
+`-- README.md
 ```
 
----
+## Tech Stack
 
-### Slide 7: Multi-Agent AI Workflow
+| Layer | Technology |
+| --- | --- |
+| Backend API | Python, FastAPI, Pydantic |
+| Persistence | PostgreSQL, PostGIS, SQLAlchemy, GeoAlchemy2, psycopg 3 |
+| Data processing | Python services, repository pattern, deterministic seed loaders |
+| Graph reasoning | NetworkX |
+| Frontend | React, Vite, TypeScript, Tailwind CSS |
+| Maps and visualization | Leaflet / React Leaflet, Recharts |
+| Deployment | Render Blueprint (`render.yaml`) |
 
-| Agent Name | Trigger Event | Primary Responsibility | Target Output / State |
-| :--- | :--- | :--- | :--- |
-| **Ingestion Agent** | Scheduled (5-15 min) | Pulls and normalizes external station, weather, and wind feeds | `station_readings` |
-| **Watcher Agent** | New Reading Batch | Evaluates CPCB thresholds and rolling Z-score anomalies | Trigger `hotspots` event |
-| **Dedup Agent** | Hotspot Trigger | Merges simultaneous nearby ward triggers | Unique `hotspots` record |
-| **Investigation Orchestrator** | Hotspot Created | Fans out 5 parallel evidence checks | `investigations` bundle |
-| **Attribution Agent** | Investigation Complete | Computes weighted evidence scores across candidate sources | `attributions` confidence % |
-| **Explanation Agent** | Attribution Written | Converts supporting evidence into natural language copy | "Why?" summary breakdown |
-| **Forecasting Agent** | Hotspot Created | Computes baseline 24-72h AQI trajectory (Scenario A) | `forecasts` (No Action) |
-| **Simulation Agent** | Action Selected | Applies intervention effect modifiers to baseline forecast | `forecasts` (With Action) |
-| **Assignment Agent** | Action Confirmed | Routes task to owning department and sets SLA due dates | `tasks` record |
-| **Escalation Agent** | Scheduled Job | Monitors recurrence and unresolved duration per ward | `escalations` trigger |
-| **Advisory Agent** | Band Change | Determines correct health advisory template for ward | `ward_advisories` |
-| **Translation Agent** | Advisory Generated | Translates health guidance into English, Hindi, Kannada, Tamil | Localized Advisory UI |
+## Backend Modules
 
----
+### Geo Master
 
+Provides reusable spatial services for city entities:
 
+- Find the ward containing a latitude/longitude.
+- Find wards, stations, road segments, and land-use zones within a configurable radius.
+- Calculate distances between geographic points.
 
+### Environmental Data
 
----
+Owns ingestion, normalization, storage, and retrieval of environmental observations:
 
-### Slide 9: Demonstrated Impact & Evaluation Alignment
+- Provider-independent AQI, weather, wind, and seeded-data adapters.
+- Normalized schemas for AQI, pollutants, weather, and wind.
+- Data-quality status on returned readings.
+- Historical baselines and arbitrary time-window queries.
 
-| Evaluation Criteria | Weight | How AeroIntel Solves & Demonstrates It |
-| :--- | :--- | :--- |
-| **Innovation** | **25%** | Fuses spatial-temporal station data, satellite aerosol signatures, traffic density, and municipal permits into an explainable multi-factor attribution engine with dynamic what-if simulation. |
-| **Business Impact** | **25%** | Fills the CAG audit gap by bridging raw sensor data directly into departmental accountability workflows, SLAs, and enforcement task prioritisation. |
-| **Technical Excellence**| **20%** | PostGIS spatial query engine (`ST_Contains`, `ST_DWithin`), multi-agent orchestration, automated explanation generation, and 100% type-safe React/Vite TypeScript frontend code. |
-| **Scalability** | **15%** | Standardized data adapters (CPCB/OpenAQ format), provider-independent ingestion layer, and PostGIS spatial indexing scalable to any Tier 1/2 urban center in India. |
-| **User Experience** | **15%** | Sleek dark-mode theme, interactive "Detective Board" timeline, side-by-side scenario charts, and multilingual citizen advisories in 4 regional languages. |
+### Sensor Health
 
----
+Classifies monitoring stations as `ONLINE`, `DELAYED`, `DEGRADED`, or `OFFLINE` using configurable rules for stale readings, missing fields, impossible values, repeated readings, and abnormal behavior.
 
-# 2. Comprehensive Technical Engineering Blueprint
+### Hotspots and Investigations
 
-```
-backend/
-├── app/
-│   ├── main.py                     # FastAPI application entrypoint & exception handlers
-│   ├── database.py                 # SQLAlchemy database session & connection diagnostic engine
-│   ├── schemas.py                  # Pydantic schemas for evidence bundles, attributions, explanations
-│   ├── attribution.py              # Multi-factor source attribution & explanation generator
-│   ├── command_center/             # Module 1: Geo overview, station status, weather/wind
-│   ├── hotspot_lifecycle/          # Module 2: Hotspot watcher, thresholds, anomaly triggers
-│   ├── investigations/             # Module 3: Investigation orchestrator & evidence collectors
-│   ├── pollution_fingerprint/      # Module 4: Multi-source evidence graph & fingerprints
-│   ├── intelligence_contract/      # Module 5 & 6: Baseline forecaster, scenario simulator, recommendations
-│   ├── operations_contract/        # Module 7: Department mapping, tasks, escalation engine
-│   ├── citizen_advisory/           # Module 8: Health guidance templates & multilingual engine
-│   ├── geo_master/                 # Spatial models, PostGIS repositories, distance helpers
-│   ├── environmental_data/         # Ingestion adapters, normalization DTOs, seed pipelines
-│   ├── sensor_health/              # Station heartbeat ping & sensor drift diagnostic service
-│   └── uncertainty/                # Next best evidence request & uncertainty quantification
-├── data/                           # Mock evidence JSON & environmental seed fixtures
-├── database/migrations/            # PostGIS SQL migrations (001_geo_master.sql, 002_environmental_data.sql)
-├── scripts/                        # Database check & geo/environmental seeding scripts
-└── tests/                          # 24 unit & integration test files
-```
+The hotspot detection service returns candidates. The lifecycle module owns persistence, state transitions, status history, and events. The investigation orchestrator reacts to hotspot events, runs evidence collectors independently, preserves partial results, and supports follow-up evidence requests.
 
----
+### Intelligence Contracts
 
-### Module 1: AI Command Center
-* **Purpose:** Single-screen situational awareness displaying live city AQI, correlated weather, wind, sensor health, and active problem wards.
-* **Backend Processing:** Scheduled ingestion job pulls sensor, weather, and wind data. IDW interpolation calculates continuous grid values across ward polygons.
-* **APIs Required:** `GET /api/v1/command-center/overview`, `GET /api/v1/stations`, `GET /api/v1/heatmap`.
-* **Database Tables:** `stations`, `station_readings`, `wards`, `weather_readings`, `wind_readings`.
+The intelligence and operations contracts expose stable read-only APIs for downstream modules such as pollution fingerprinting, evidence graph generation, source attribution, uncertainty analysis, next-best-evidence, forecasting, citizen advisory, and intervention verification.
 
-### Module 2: Hotspot Detection Engine
-* **Purpose:** Automated detection of abnormal pollution spikes without requiring constant manual monitoring.
-* **Backend Processing:** Watcher service compares incoming AQI against statutory CPCB bands and rolling 7-day ward baselines. Triggers `hotspot.created` events.
-* **APIs Required:** `GET /api/v1/hotspots?status=active`, `POST /api/v1/hotspots`, `PATCH /api/v1/hotspots/{id}/status`.
-* **Database Tables:** `hotspots`, `hotspot_history`, `thresholds_config`.
+## API Surface
 
-### Module 3: AI Multi-Source Investigation
-* **Purpose:** Automated evidence gathering across satellite, traffic, permit, land-use, and industrial registries upon hotspot creation.
-* **Backend Processing:** Investigation Orchestrator fans out parallel checks. Satellite service evaluates aerosol haze; Spatial queries check construction permits within 500m and industrial consent registries.
-* **APIs Required:** `POST /api/v1/investigations`, `GET /api/v1/investigations/{hotspot_id}`.
-* **Database Tables:** `investigations`, `evidence_items`, `construction_permits`, `industrial_units`, `traffic_readings`.
-
-### Module 4: Evidence Collection & Source Attribution
-* **Purpose:** Translate raw evidence bundles into an explainable source verdict with confidence scores.
-* **Backend Processing:** Weighted scoring engine applies directional wind-bearing multipliers to determine primary and secondary sources. Generates plain-language explanation checklists.
-* **APIs Required:** `POST /api/v1/attributions`, `POST /api/v1/explanations`.
-* **Database Tables:** `pollution_sources`, `source_evidence_weights`, `attributions`, `attribution_evidence`.
-
-### Module 5: Prediction Engine & Scenario Simulator
-* **Purpose:** Display two futures side-by-side: Scenario A (No Action) vs. Scenario B (With AI Recommendations applied).
-* **Backend Processing:** Time-series forecaster computes baseline 24h trajectory. What-if simulator applies intervention effect coefficients to project AQI reduction and hours saved.
-* **APIs Required:** `GET /api/v1/predictions/{hotspot_id}?scenario=no_action`, `POST /api/v1/predictions/{hotspot_id}/simulate`.
-* **Database Tables:** `forecasts`, `forecast_points`, `intervention_effect_coefficients`.
-
-### Module 6: AI Actionable Interventions
-* **Purpose:** Provide a prioritized menu of interventions mapped directly to attributed pollution sources.
-* **Backend Processing:** Maps primary source to candidate actions, calculates expected AQI drop, assigns effort level (Low/Med/High), and orders by ROI.
-* **APIs Required:** `GET /api/v1/recommendations/{hotspot_id}`, `POST /api/v1/recommendations/{hotspot_id}/select`.
-* **Database Tables:** `action_catalog`, `recommendations`, `recommendation_selection`.
-
-### Module 7: Department Assignment & Accountability
-* **Purpose:** Turn selected recommendations into tracked department tasks with SLA deadlines and escalation logic.
-* **Backend Processing:** Routes action types to responsible municipal departments. Monitors recurrence counters per ward and escalates unacknowledged alerts.
-* **APIs Required:** `POST /api/v1/tasks`, `PATCH /api/v1/tasks/{id}/status`, `GET /api/v1/hotspots/{id}/accountability`.
-* **Database Tables:** `departments`, `department_action_mapping`, `tasks`, `task_status_history`, `escalations`.
-
-### Module 8: Citizen Health Risk Advisory
-* **Purpose:** Deliver ward-level health protection advisories in regional languages.
-* **Backend Processing:** Templates mapped to CPCB AQI bands are customized per audience group (General, Schools, Elderly) and translated into target languages.
-* **APIs Required:** `GET /api/v1/advisory/{ward_id}?lang=hi`, `GET /api/v1/advisory/{ward_id}/all-languages`.
-* **Database Tables:** `advisory_templates`, `advisory_translations`, `ward_advisories`.
-
----
-
-# 3. Database Schema & Geo Master Spatial Operations
-
-### Consolidated Database ER Overview
+When the backend is running, interactive API documentation is available at:
 
 ```text
-wards ──< stations ──< station_readings
-wards ──< hotspots ──< hotspot_history
-hotspots ──1:1── investigations ──< evidence_items
-hotspots ──< attributions ──< attribution_evidence
-hotspots ──< recommendations ──< recommendation_selection
-hotspots ──< tasks ──< task_status_history
-hotspots ──< forecasts ──< forecast_points
-wards ──< ward_advisories
-departments ──< department_action_mapping ──< action_catalog
-action_catalog ──< source_evidence_weights ── pollution_sources
+http://127.0.0.1:8000/docs
 ```
 
-### Key Spatial Queries (`backend/app/geo_master`)
+Common endpoints include:
 
-* **Ward Containment Query:**
-  ```python
-  GeoMasterService.find_ward_containing_point(point) # Uses PostGIS ST_Contains
-  ```
-* **Radius Entity Proximity:**
-  ```python
-  GeoMasterService.find_entities_within_radius(entity_type, point, radius_meters) # Uses PostGIS ST_DWithin
-  ```
-* **Distance Computation:**
-  ```python
-  GeoMasterService.calculate_distance_meters(origin, destination) # Uses ST_DistanceSphere (or Haversine fallback)
-  ```
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Application health check |
+| `GET /api/v1/command-center/dashboard` | Complete command-center dashboard payload |
+| `GET /api/v1/heatmap/current` | Current AQI heatmap grid for a map bounding box |
+| `GET /api/v1/heatmap/wards` | Ward-level AQI summaries |
+| `GET /api/v1/environmental/stations/latest` | Latest station readings with quality metadata |
+| `GET /api/v1/environmental/readings/window` | Generic environmental time-window retrieval |
+| `GET /api/v1/sensor-health/stations` | Station health statuses |
+| `GET /api/v1/hotspots` | Hotspot lifecycle records |
+| `GET /api/v1/investigations/{investigation_id}/evidence` | Standardized evidence bundle |
+| `GET /api/v1/intelligence-contract/hotspots/{hotspot_id}` | Handoff payload for intelligence modules |
+| `GET /api/v1/operations-contract/wards/{ward_code}/state` | Operations/advisory ward state contract |
+| `GET /api/v1/pollution-fingerprints/hotspots/{hotspot_id}` | Pollution fingerprint features and pattern scores |
+| `GET /api/v1/evidence-graphs/hotspots/{hotspot_id}` | Frontend-friendly explainable evidence graph |
 
----
+## Demo Scenarios
 
-# 4. API Endpoint Contracts & Data Specifications
+The seed data supports deterministic hotspot workflows for:
 
-### Source Attribution Request (`POST /api/v1/attributions`)
+| Scenario | Expected evidence pattern |
+| --- | --- |
+| Construction-led hotspot | PM10/PM2.5-heavy profile, nearby active construction permits, land-use context, wind support where applicable |
+| Traffic-led hotspot | NO2/CO elevation, road proximity, traffic-density deviation, rush-hour correlation |
+| Industrial-led hotspot | SO2/NO2/CO anomalies, nearby industrial units, compliance context, wind and temporal alignment |
 
-```json
-{
-  "hotspot_id": "HS-BLR-2025-001",
-  "ward_id": "WARD-192",
-  "traffic": { "density_index": 0.85, "congestion_level": "heavy" },
-  "construction": { "active_permits_within_500m": 3, "dust_complaints": 12 },
-  "industry": { "nearby_units_count": 1, "stack_emission_flag": false },
-  "satellite": { "aerosol_optical_depth": 0.62, "dust_signature_detected": true },
-  "wind_direction": 225.0,
-  "wind_speed": 12.5,
-  "pm25": 185.0
-}
+These scenarios are intentionally reproducible so the full pipeline can be demonstrated even when external APIs are unavailable.
+
+## Local Development
+
+### Prerequisites
+
+- Python 3.11 or newer
+- Node.js 18 or newer
+- PostgreSQL with PostGIS enabled
+- A local database named `aerointel`
+
+### Environment Configuration
+
+Copy `.env.example` to `.env` or `backend/.env` and replace `YOUR_PASSWORD` with your local PostgreSQL password.
+
+```env
+DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@127.0.0.1:5432/aerointel
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-### Source Attribution Response
+Do not commit real credentials.
 
-```json
-{
-  "hotspot_id": "HS-BLR-2025-001",
-  "primary_source": "Construction Dust",
-  "confidence": 78.5,
-  "secondary_sources": [
-    { "source": "Vehicular Emission", "score": 14.2 },
-    { "source": "Industrial Emission", "score": 7.3 }
-  ],
-  "rankings": [
-    { "source": "Construction Dust", "score": 78.5 },
-    { "source": "Vehicular Emission", "score": 14.2 },
-    { "source": "Industrial Emission", "score": 7.3 },
-    { "source": "Road Dust", "score": 0.0 },
-    { "source": "Biomass Burning", "score": 0.0 }
-  ]
-}
-```
+### Backend Setup
 
-### Explanation Generator Response (`POST /api/v1/explanations`)
-
-```json
-{
-  "hotspot_id": "HS-BLR-2025-001",
-  "primary_source": "Construction Dust",
-  "confidence": 78.5,
-  "headline": "Construction Dust identified as primary pollution source (78.5% confidence)",
-  "summary": "High PM2.5 levels in WARD-192 are strongly correlated with 3 active construction permits within 500m and satellite dust signatures.",
-  "evidence": [
-    "3 active construction permits found within 500m radius",
-    "Satellite remote sensing confirmed high aerosol optical depth (0.62)",
-    "Favorable wind direction (225°) blowing from construction zone to station"
-  ]
-}
-```
-
----
-
-# 5. How to Run & Verification Guide
-
-### Option 1: Quick Start (Frontend Only with Seeded Fallbacks)
-No database or Python environment setup required:
-```powershell
-cd frontend
-npm run install:root
-npm run dev
-```
-Open **[http://localhost:5173](http://localhost:5173)** in your browser.
-
----
-
-### Option 2: Full Stack Setup (FastAPI Backend + React Frontend)
-
-#### Step 1: Start FastAPI Backend
 ```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-* **Interactive API Documentation (Swagger):** `http://localhost:8000/docs`
-* **Health Check:** `http://localhost:8000/health`
-
-#### Step 2: (Optional) Database Setup & Seeding
-Create a `.env` file in `backend/.env`:
-```env
-DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@127.0.0.1:5432/aerointel
-```
-Apply migrations and seed data:
-```powershell
-psql $env:DATABASE_URL -f database/migrations/001_geo_master.sql
-psql $env:DATABASE_URL -f database/migrations/002_environmental_data.sql
-python -m scripts.seed_geo_master
-python -m scripts.seed_environmental_data
-```
-
-#### Step 3: Start React Frontend
-In a separate terminal window:
-```powershell
-cd frontend
-npm run dev
-```
-
----
-
-### Verification & Automated Testing
-
-* **Run Backend Python Test Suite (24 Test Files):**
-  ```powershell
-  cd backend
-  pytest
-  ```
-
-* **Run Frontend TypeScript Type-Check:**
-  ```powershell
-  npx tsc --noEmit
-  ```
-
----
----
-
-# 6. Deployment Guide
-
-AeroIntel is prepared for a two-service Render deployment:
-
-- `aerointel-api`: FastAPI backend from `backend/`
-- `aerointel-command-center`: static React/Vite frontend from root `src/`
-- `aerointel-db`: managed PostgreSQL database with PostGIS enabled by migration `001_geo_master.sql`
-
-## Render Blueprint
-
-The repository includes `render.yaml`. After pushing this file to GitHub, open Render's Blueprint flow and select this repository.
-
-Backend service settings defined by the blueprint:
-
-```text
-Root Directory: backend
-Build Command: pip install -r requirements.txt
-Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-```
-
-Frontend static site settings defined by the blueprint:
-
-```text
-Root Directory: .
-Build Command: npm install && npm run build
-Publish Directory: dist
-```
-
-## Production Environment Variables
-
-Set these in Render after the first services are created:
-
-```env
-ALLOWED_ORIGINS=https://YOUR-FRONTEND.onrender.com
-VITE_API_BASE_URL=https://YOUR-BACKEND.onrender.com
-```
-
-`DATABASE_URL` is wired from the Render PostgreSQL database by `render.yaml`.
-
-## Initialize the Production Database
-
-After the backend service has `DATABASE_URL`, run this from a Render shell or any terminal with the production `DATABASE_URL` exported:
-
-```powershell
-cd backend
+python -m app.scripts.check_db
 python -m app.scripts.apply_migrations
 python -m scripts.seed_geo_master
 python -m scripts.seed_environmental_data
+uvicorn app.main:app --reload --port 8000
+```
+
+Backend URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+### Frontend Setup
+
+The active Vite app lives at the repository root, and `frontend/` provides the expected workflow wrapper.
+
+```powershell
+cd frontend
+npm run install:root
+npm run dev
+```
+
+Frontend URL:
+
+```text
+http://127.0.0.1:5173
+```
+
+## Testing and Verification
+
+Backend tests:
+
+```powershell
+cd backend
+pytest
+```
+
+Frontend production build:
+
+```powershell
+cd frontend
+npm run build
+```
+
+Database connectivity check:
+
+```powershell
+cd backend
 python -m app.scripts.check_db
 ```
 
-## Post-Deploy Checks
-
-Verify:
+Typical smoke checks after startup:
 
 ```text
-https://YOUR-BACKEND.onrender.com/health
-https://YOUR-BACKEND.onrender.com/health/database
-https://YOUR-BACKEND.onrender.com/api/v1/command-center/dashboard
-https://YOUR-FRONTEND.onrender.com
+GET http://127.0.0.1:8000/health
+GET http://127.0.0.1:8000/api/v1/command-center/dashboard
+GET http://127.0.0.1:8000/api/v1/hotspots?status=ACTIVE
 ```
 
+## Deployment
+
+The repository includes a Render Blueprint in `render.yaml` with:
+
+- `aerointel-api`: FastAPI web service from `backend/`
+- `aerointel-command-center`: static Vite frontend from the repository root
+- `aerointel-db`: managed PostgreSQL database
+
+Production environment variables:
+
+| Variable | Service | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Backend | PostgreSQL connection URL. In Render this is wired from the managed database. |
+| `ALLOWED_ORIGINS` | Backend | Comma-separated list of allowed frontend origins. |
+| `VITE_API_BASE_URL` | Frontend | Public backend API base URL used at build time. |
+
+After provisioning the database, run migrations and seed scripts against the production database before demoing the full workflow.
+
+## Operational Notes
+
+- Database authentication failures are diagnosed through `python -m app.scripts.check_db`.
+- External providers should fail gracefully to seeded demo data where adapters support fallback behavior.
+- Evidence collectors are expected to preserve partial investigation progress if one source fails.
+- Downstream intelligence modules should consume standardized contracts, not internal tables.
+- Frontend changes should follow `DESIGN-apple.md` as the authoritative visual design system.
+
+## Security Notes
+
+- Do not commit `.env` files or real database credentials.
+- Keep database URLs in environment variables.
+- Avoid exposing raw stack traces or sensitive connection details in API responses.
+- Use the service and repository layers for validation and parameterized database access.
+
+## Project Status
+
+AeroIntel currently provides the end-to-end foundation for the environmental-data-to-investigation workflow, including deterministic demo scenarios and frontend command-center visualization. Forecasting, final source attribution, citizen advisory, and intervention execution modules are intended to consume the contracts exposed by this codebase.
