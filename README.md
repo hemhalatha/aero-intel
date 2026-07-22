@@ -378,4 +378,67 @@ npm run dev
   ```
 
 ---
+---
+
+# 6. Deployment Guide
+
+AeroIntel is prepared for a two-service Render deployment:
+
+- `aerointel-api`: FastAPI backend from `backend/`
+- `aerointel-command-center`: static React/Vite frontend from root `src/`
+- `aerointel-db`: managed PostgreSQL database with PostGIS enabled by migration `001_geo_master.sql`
+
+## Render Blueprint
+
+The repository includes `render.yaml`. After pushing this file to GitHub, open Render's Blueprint flow and select this repository.
+
+Backend service settings defined by the blueprint:
+
+```text
+Root Directory: backend
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Frontend static site settings defined by the blueprint:
+
+```text
+Root Directory: .
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+## Production Environment Variables
+
+Set these in Render after the first services are created:
+
+```env
+ALLOWED_ORIGINS=https://YOUR-FRONTEND.onrender.com
+VITE_API_BASE_URL=https://YOUR-BACKEND.onrender.com
+```
+
+`DATABASE_URL` is wired from the Render PostgreSQL database by `render.yaml`.
+
+## Initialize the Production Database
+
+After the backend service has `DATABASE_URL`, run this from a Render shell or any terminal with the production `DATABASE_URL` exported:
+
+```powershell
+cd backend
+python -m app.scripts.apply_migrations
+python -m scripts.seed_geo_master
+python -m scripts.seed_environmental_data
+python -m app.scripts.check_db
+```
+
+## Post-Deploy Checks
+
+Verify:
+
+```text
+https://YOUR-BACKEND.onrender.com/health
+https://YOUR-BACKEND.onrender.com/health/database
+https://YOUR-BACKEND.onrender.com/api/v1/command-center/dashboard
+https://YOUR-FRONTEND.onrender.com
+```
 

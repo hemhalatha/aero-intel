@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -24,10 +26,18 @@ from .schemas import AttributionResponse, EvidenceBundle, ExplanationResponse
 from .sensor_health.routes import router as sensor_health_router
 from .uncertainty.routes import router as uncertainty_router
 
+
+def get_allowed_origins() -> list[str]:
+    defaults = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    configured = os.getenv("ALLOWED_ORIGINS", "")
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    return [*defaults, *origins]
+
+
 app = FastAPI(title="AeroIntel", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,9 +92,9 @@ async def sqlalchemy_operational_exception_handler(
 def root() -> dict[str, str]:
     return {
         "message": "Welcome to AeroIntel AI Urban Air Quality Command Center API",
-        "docs": "http://127.0.0.1:8000/docs",
-        "health": "http://127.0.0.1:8000/health",
-        "command_center_dashboard": "http://127.0.0.1:8000/api/v1/command-center/dashboard",
+        "docs": "/docs",
+        "health": "/health",
+        "command_center_dashboard": "/api/v1/command-center/dashboard",
     }
 
 
@@ -125,3 +135,4 @@ def create_explanation(bundle: EvidenceBundle) -> ExplanationResponse:
         summary=summary,
         evidence=primary.evidence,
     )
+
