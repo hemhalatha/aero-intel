@@ -9,9 +9,12 @@ __pycache__/
 backend/.venv/
 .venv/
 
-# Environment
-.env
-*.env
+# Python virtual environments
+env/
+env/**
+venv/
+.venv/
+backend/.venv/
 
 # Testing
 .pytest_cache/
