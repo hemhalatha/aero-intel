@@ -1,0 +1,11 @@
+{
+  "name": "aerointel-frontend",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix .. run dev",
+    "preview": "npm --prefix .. run preview",
+    "build": "npm --prefix .. run build",
+    "install:root": "cd .. && npm install"
+  },
+  "type": "module"
+}

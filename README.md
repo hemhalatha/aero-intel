@@ -321,7 +321,8 @@ action_catalog ──< source_evidence_weights ── pollution_sources
 ### Option 1: Quick Start (Frontend Only with Seeded Fallbacks)
 No database or Python environment setup required:
 ```powershell
-npm install
+cd frontend
+npm run install:root
 npm run dev
 ```
 Open **[http://localhost:5173](http://localhost:5173)** in your browser.
@@ -357,6 +358,7 @@ python -m scripts.seed_environmental_data
 #### Step 3: Start React Frontend
 In a separate terminal window:
 ```powershell
+cd frontend
 npm run dev
 ```
 
@@ -376,6 +378,4 @@ npm run dev
   ```
 
 ---
-
-
 

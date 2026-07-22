@@ -1,5 +1,6 @@
 # Node
 node_modules/
+frontend/node_modules/
 dist/
 
 # Python
@@ -32,3 +33,4 @@ backend/pytest-cache-files-*/
 # OS
 .DS_Store
 Thumbs.db
+
