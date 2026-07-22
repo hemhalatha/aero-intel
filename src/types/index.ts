@@ -43,13 +43,17 @@ export interface AttributionData {
 export interface Task {
   id: string;
   title: string;
-  department: 'Municipality' | 'Traffic Police' | 'Pollution Control Board' | 'Public Works';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  department: string;
+  priority: string;
   status: 'ASSIGNED' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED';
   ward: string;
   assignedDate: string;
   ageDays: number;
   escalationStatus: 'NORMAL' | 'REMINDER_SENT' | 'ESCALATED' | 'CRITICAL_ALERT';
+  expectedReduction?: string;
+  estimatedTime?: string;
+  evidence?: string;
+  completionPercentage?: number;
 }
 
 export interface Recommendation {

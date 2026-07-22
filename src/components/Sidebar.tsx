@@ -21,7 +21,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`border-r border-slate-200 bg-white flex flex-col justify-between shrink-0 h-[calc(100vh-4rem)] transition-all duration-200 ${
+      className={`border-r border-slate-200 bg-white flex flex-col shrink-0 h-[calc(100vh-4rem)] transition-all duration-200 ${
         collapsed ? 'w-16' : 'w-60'
       }`}
     >
@@ -66,19 +66,7 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Footer Details */}
-      {!collapsed && (
-        <div className="p-4 border-t border-slate-200 bg-slate-50/50 text-[11px] text-slate-500 space-y-1">
-          <div className="flex justify-between font-medium">
-            <span>Spatial Engine</span>
-            <span className="text-slate-700">PostGIS 3.4</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Station Telemetry</span>
-            <span className="text-emerald-600 font-medium">100% Operational</span>
-          </div>
-        </div>
-      )}
+
     </aside>
   );
 };

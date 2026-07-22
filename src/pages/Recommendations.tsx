@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Sparkles, Check, MapPin, ShieldAlert } from 'lucide-react';
-import { mockHotspots } from '../mock/data';
+import { mockHotspots, mockTasks } from '../mock/data';
 import { generateEvidenceForHotspot } from '../utils/investigationEngine';
 import { Recommendation } from '../types';
 
@@ -110,8 +110,29 @@ export const Recommendations: React.FC = () => {
   const toggleApply = (id: string) => {
     setAppliedIds(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        const rec = dynamicRecommendations.find(r => r.id === id);
+        if (rec) {
+          mockTasks.unshift({
+            id: `TSK-${Math.floor(Math.random() * 900) + 100}`,
+            title: rec.title,
+            department: rec.department,
+            priority: rec.priority,
+            status: 'ASSIGNED',
+            ward: selectedHotspot.ward,
+            assignedDate: new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString().slice(0,5),
+            ageDays: 0,
+            escalationStatus: 'NORMAL',
+            expectedReduction: rec.expectedReduction,
+            estimatedTime: rec.time,
+            evidence: rec.evidence,
+            completionPercentage: 0
+          });
+        }
+      }
       return next;
     });
   };
