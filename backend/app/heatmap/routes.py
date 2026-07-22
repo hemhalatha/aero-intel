@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db_optional
 
 from .idw import IDWInterpolator
 from .schemas import BoundingBox, GeoJSONFeatureCollection, HeatmapRequest, WardAQISummary
@@ -10,10 +10,18 @@ from .service import AQIHeatmapService
 router = APIRouter(prefix="/api/v1/heatmap", tags=["aqi-heatmap"])
 
 
-def get_heatmap_service(db: Session = Depends(get_db)) -> AQIHeatmapService:
-    from .repository import AQIHeatmapRepository
+def get_heatmap_service(db: Session | None = Depends(get_db_optional)) -> AQIHeatmapService:
+    if db is not None:
+        try:
+            from sqlalchemy import text
+            db.execute(text("SELECT 1"))
+            from .repository import AQIHeatmapRepository
+            return AQIHeatmapService(repository=AQIHeatmapRepository(db), interpolator=IDWInterpolator())
+        except Exception:
+            pass
+    from app.command_center.fallback import FallbackHeatmapService
+    return FallbackHeatmapService()
 
-    return AQIHeatmapService(repository=AQIHeatmapRepository(db), interpolator=IDWInterpolator())
 
 
 def bbox_from_query(

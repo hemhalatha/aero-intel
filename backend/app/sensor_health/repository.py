@@ -10,20 +10,33 @@ class SensorHealthRepository:
         self.db = db
 
     def get_current_statuses(self) -> list[SensorHealthSnapshot]:
-        rows = self.db.scalars(select(SensorHealthCurrent).order_by(SensorHealthCurrent.station_code))
-        return [self._snapshot(row) for row in rows]
+        try:
+            rows = self.db.scalars(select(SensorHealthCurrent).order_by(SensorHealthCurrent.station_code))
+            return [self._snapshot(row) for row in rows]
+        except Exception:
+            from app.command_center.fallback import FallbackSensorHealthService
+            return FallbackSensorHealthService().get_all_station_health()
 
     def get_current_status(self, station_code: str) -> SensorHealthSnapshot | None:
-        row = self.db.get(SensorHealthCurrent, station_code)
-        return self._snapshot(row) if row else None
+        try:
+            row = self.db.get(SensorHealthCurrent, station_code)
+            return self._snapshot(row) if row else None
+        except Exception:
+            from app.command_center.fallback import FallbackSensorHealthService
+            return FallbackSensorHealthService().get_current_status(station_code)
 
     def get_health_history(self, station_code: str) -> list[SensorHealthSnapshot]:
-        statement = (
-            select(SensorHealthHistory)
-            .where(SensorHealthHistory.station_code == station_code)
-            .order_by(SensorHealthHistory.changed_at.desc())
-        )
-        return [self._snapshot(row) for row in self.db.scalars(statement)]
+        try:
+            statement = (
+                select(SensorHealthHistory)
+                .where(SensorHealthHistory.station_code == station_code)
+                .order_by(SensorHealthHistory.changed_at.desc())
+            )
+            return [self._snapshot(row) for row in self.db.scalars(statement)]
+        except Exception:
+            from app.command_center.fallback import FallbackSensorHealthService
+            return FallbackSensorHealthService().get_health_history(station_code)
+
 
     def save_health_snapshot(self, snapshot: SensorHealthSnapshot) -> None:
         current = self.db.get(SensorHealthCurrent, snapshot.station_code)

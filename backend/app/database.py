@@ -131,3 +131,24 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def get_db_optional() -> Generator[Session | None, None, None]:
+    try:
+        if not os.getenv(DATABASE_ENV_NAME):
+            load_env_files()
+        if not os.getenv(DATABASE_ENV_NAME):
+            yield None
+            return
+        db = get_session_local()()
+        try:
+            db.execute(text("SELECT 1"))
+            yield db
+        except Exception:
+            yield None
+        finally:
+            db.close()
+    except Exception:
+        yield None
+
+

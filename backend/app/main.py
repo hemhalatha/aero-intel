@@ -78,9 +78,20 @@ async def sqlalchemy_operational_exception_handler(
     )
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "message": "Welcome to AeroIntel AI Urban Air Quality Command Center API",
+        "docs": "http://127.0.0.1:8000/docs",
+        "health": "http://127.0.0.1:8000/health",
+        "command_center_dashboard": "http://127.0.0.1:8000/api/v1/command-center/dashboard",
+    }
+
+
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "module": "aerointel"}
+
 
 
 @app.get("/health/database")

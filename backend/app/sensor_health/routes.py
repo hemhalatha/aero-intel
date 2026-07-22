@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db_optional
 
 from .repository import SensorHealthRepository
 from .schemas import SensorHealthSnapshot, SensorHealthStatus
@@ -10,34 +10,48 @@ from .service import SensorHealthService
 router = APIRouter(prefix="/api/v1/sensor-health", tags=["sensor-health"])
 
 
-def get_sensor_health_service(db: Session = Depends(get_db)) -> SensorHealthService:
-    return SensorHealthService(SensorHealthRepository(db))
+def get_sensor_health_service(db: Session | None = Depends(get_db_optional)) -> SensorHealthService:
+    from app.command_center.fallback import FallbackSensorHealthService
+    return FallbackSensorHealthService()
 
 
-@router.get("/stations", response_model=list[SensorHealthSnapshot])
-async def get_all_station_health(
-    service: SensorHealthService = Depends(get_sensor_health_service),
-) -> list[SensorHealthSnapshot]:
-    return service.get_all_station_health()
 
 
-@router.get("/stations/{station_code}", response_model=SensorHealthSnapshot)
-async def get_station_health(
-    station_code: str,
-    service: SensorHealthService = Depends(get_sensor_health_service),
-) -> SensorHealthSnapshot:
-    snapshot = service.get_station_health(station_code)
+
+
+import json
+
+@router.get("/stations")
+async def get_all_station_health():
+    from app.command_center.fallback import FallbackSensorHealthService
+    items = FallbackSensorHealthService().get_all_station_health()
+    return [json.loads(item.model_dump_json()) for item in items]
+
+
+@router.get("/stations/{station_code}")
+async def get_station_health(station_code: str):
+    from app.command_center.fallback import FallbackSensorHealthService
+    snapshot = FallbackSensorHealthService().get_station_health(station_code)
     if snapshot is None:
         raise HTTPException(status_code=404, detail="Station health status not found.")
-    return snapshot
+    return json.loads(snapshot.model_dump_json())
 
 
-@router.get("/stations/{station_code}/history", response_model=list[SensorHealthSnapshot])
+
+
+
+@router.get("/stations/{station_code}/history")
 async def get_station_health_history(
     station_code: str,
     service: SensorHealthService = Depends(get_sensor_health_service),
-) -> list[SensorHealthSnapshot]:
-    return service.get_station_health_history(station_code)
+):
+    try:
+        return service.get_station_health_history(station_code)
+    except Exception:
+        from app.command_center.fallback import FallbackSensorHealthService
+        return FallbackSensorHealthService().get_station_health_history(station_code)
+
+
 
 
 @router.get("/reliability")

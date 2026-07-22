@@ -1,42 +1,141 @@
-// Mock data
+// Mock data for All-India National Air Quality Intelligence Platform
 import { Station, Ward, Hotspot, EvidenceItem, AttributionData, Task, Recommendation, Advisory } from '../types';
 
 export const mockDashboardMetrics = {
-  cityAQI: 218,
-  activeHotspots: 4,
-  offlineSensors: 2,
-  worstWard: "Ward 17 (Okhla Phase II)",
+  cityAQI: 265,
+  activeHotspots: 12,
+  offlineSensors: 4,
+  worstWard: "Okhla Phase II (Delhi) / Talkatora (Lucknow)",
   weather: {
-    temp: "28°C",
-    humidity: "64%",
-    windSpeed: "14 km/h",
-    windDirection: "SSW (210°)"
+    temp: "29°C",
+    humidity: "62%",
+    windSpeed: "12 km/h",
+    windDirection: "NW (315°)"
   }
 };
 
 export const mockStations: Station[] = [
-  { id: "ST-01", name: "Anand Vihar", lat: 28.6469, lng: 77.3160, aqi: 342, status: "ONLINE" },
-  { id: "ST-02", name: "R.K. Puram", lat: 28.5644, lng: 77.1726, aqi: 210, status: "ONLINE" },
-  { id: "ST-03", name: "Punjabi Bagh", lat: 28.6683, lng: 77.1260, aqi: 285, status: "ONLINE" },
-  { id: "ST-04", name: "Mandir Marg", lat: 28.6341, lng: 77.1983, aqi: 180, status: "ONLINE" },
-  { id: "ST-05", name: "Okhla Ph-II", lat: 28.5308, lng: 77.2713, aqi: 390, status: "ONLINE" },
-  { id: "ST-06", name: "Ito Crossing", lat: 28.6289, lng: 77.2415, aqi: 0, status: "OFFLINE" },
-  { id: "ST-07", name: "Dwarka Sec-8", lat: 28.5708, lng: 77.0715, aqi: 0, status: "OFFLINE" }
+  // Delhi NCR
+  { id: "ST-05", name: "Okhla Ph-II (Delhi)", lat: 28.5308, lng: 77.2713, aqi: 390, status: "ONLINE" },
+  { id: "ST-01", name: "Anand Vihar (Delhi)", lat: 28.6469, lng: 77.3160, aqi: 342, status: "ONLINE" },
+  { id: "ST-03", name: "Punjabi Bagh (Delhi)", lat: 28.6683, lng: 77.1260, aqi: 285, status: "ONLINE" },
+  { id: "ST-02", name: "R.K. Puram (Delhi)", lat: 28.5644, lng: 77.1726, aqi: 210, status: "ONLINE" },
+  { id: "ST-04", name: "Mandir Marg (Delhi)", lat: 28.6341, lng: 77.1983, aqi: 180, status: "ONLINE" },
+  
+  // Bengaluru Metro
+  { id: "BLR-PEE-AQ", name: "Peenya Industrial (Bengaluru)", lat: 13.0285, lng: 77.5186, aqi: 315, status: "ONLINE" },
+  { id: "BLR-IND-AQ", name: "Indiranagar Station (Bengaluru)", lat: 12.9784, lng: 77.6408, aqi: 240, status: "DEGRADED" },
+  { id: "BLR-CBD-AQ", name: "CBD Station (Bengaluru)", lat: 12.9716, lng: 77.5946, aqi: 110, status: "ONLINE" },
+  { id: "BLR-WHT-AQ", name: "Whitefield (Bengaluru)", lat: 12.9698, lng: 77.7500, aqi: 290, status: "ONLINE" },
+
+  // Mumbai MMR
+  { id: "BOM-NAV-AQ", name: "Navi Mumbai Rabale (Mumbai)", lat: 19.1412, lng: 73.0089, aqi: 310, status: "ONLINE" },
+  { id: "BOM-BKC-AQ", name: "BKC Bandra (Mumbai)", lat: 19.0600, lng: 72.8683, aqi: 275, status: "ONLINE" },
+  { id: "BOM-COL-AQ", name: "Colaba (Mumbai)", lat: 18.9067, lng: 72.8147, aqi: 150, status: "ONLINE" },
+
+  // Kolkata Metro
+  { id: "CCU-BAL-AQ", name: "Ballygunge (Kolkata)", lat: 22.5280, lng: 88.3659, aqi: 305, status: "ONLINE" },
+  { id: "CCU-VIC-AQ", name: "Victoria Memorial (Kolkata)", lat: 22.5448, lng: 88.3426, aqi: 225, status: "ONLINE" },
+
+  // Chennai Metro
+  { id: "MAA-MAN-AQ", name: "Manali Industrial (Chennai)", lat: 13.1667, lng: 80.2667, aqi: 280, status: "ONLINE" },
+  { id: "MAA-ALA-AQ", name: "Alandur Bus Stand (Chennai)", lat: 13.0012, lng: 80.2012, aqi: 140, status: "ONLINE" },
+
+  // Hyderabad Metro
+  { id: "HYD-ZOO-AQ", name: "Zoo Park Bahadurpura (Hyderabad)", lat: 17.3489, lng: 78.4514, aqi: 260, status: "ONLINE" },
+  { id: "HYD-SAN-AQ", name: "Sanathnagar (Hyderabad)", lat: 17.4578, lng: 78.4412, aqi: 215, status: "ONLINE" },
+
+  // Lucknow / UP
+  { id: "LKO-TAL-AQ", name: "Talkatora Industrial (Lucknow)", lat: 26.8389, lng: 80.8926, aqi: 365, status: "ONLINE" },
+
+  // Gujarat
+  { id: "AMD-MAN-AQ", name: "Maninagar (Ahmedabad)", lat: 22.9972, lng: 72.6008, aqi: 330, status: "ONLINE" }
 ];
 
 export const mockWards: Ward[] = [
-  { id: "W-17", name: "Okhla Phase II", aqi: 390, riskLevel: "SEVERE" },
-  { id: "W-04", name: "Anand Vihar Hub", aqi: 342, riskLevel: "SEVERE" },
-  { id: "W-12", name: "Punjabi Bagh West", aqi: 285, riskLevel: "VERY_POOR" },
-  { id: "W-09", name: "Wazirpur Industrial Area", aqi: 260, riskLevel: "VERY_POOR" },
-  { id: "W-22", name: "R.K. Puram Sector 5", aqi: 210, riskLevel: "POOR" }
+  // SEVERE (> 300 AQI)
+  { id: "W-17", name: "Okhla Phase II (Delhi)", aqi: 390, riskLevel: "SEVERE" },
+  { id: "DEL-W-88", name: "Bawana Industrial Zone (Delhi)", aqi: 380, riskLevel: "SEVERE" },
+  { id: "KAN-W-01", name: "Nehru Nagar (Kanpur)", aqi: 370, riskLevel: "SEVERE" },
+  { id: "LKO-W-04", name: "Talkatora Industrial (Lucknow)", aqi: 365, riskLevel: "SEVERE" },
+  { id: "DEL-W-92", name: "Narela Industrial Area (Delhi)", aqi: 360, riskLevel: "SEVERE" },
+  { id: "PUN-W-01", name: "Focal Point Industrial (Ludhiana)", aqi: 355, riskLevel: "SEVERE" },
+  { id: "UP-W-12", name: "Vasundhara Sector 16 (Ghaziabad)", aqi: 350, riskLevel: "SEVERE" },
+  { id: "W-04", name: "Anand Vihar Hub (Delhi)", aqi: 342, riskLevel: "SEVERE" },
+  { id: "CCU-W-18", name: "Howrah Railway Hub (Kolkata)", aqi: 340, riskLevel: "SEVERE" },
+  { id: "DEL-W-19", name: "Wazirpur Industrial Area (Delhi)", aqi: 335, riskLevel: "SEVERE" },
+  { id: "AMD-W-12", name: "Maninagar (Ahmedabad)", aqi: 330, riskLevel: "SEVERE" },
+  { id: "UP-W-89", name: "Varanasi Cantt Zone (Varanasi)", aqi: 325, riskLevel: "SEVERE" },
+  { id: "NCR-W-45", name: "Greater Noida Alpha 1 (NCR)", aqi: 320, riskLevel: "SEVERE" },
+  { id: "BLR-W-003", name: "Peenya Industrial (Bengaluru)", aqi: 315, riskLevel: "SEVERE" },
+  { id: "BOM-W-09", name: "Navi Mumbai Rabale (Mumbai)", aqi: 310, riskLevel: "SEVERE" },
+  { id: "BOM-W-22", name: "Chembur Industrial Corridor (Mumbai)", aqi: 305, riskLevel: "SEVERE" },
+  { id: "CCU-W-02", name: "Ballygunge (Kolkata)", aqi: 305, riskLevel: "SEVERE" },
+
+  // POOR / VERY POOR (200 - 300 AQI)
+  { id: "DEL-W-34", name: "Rohini Sector 16 (Delhi)", aqi: 295, riskLevel: "VERY_POOR" },
+  { id: "UP-W-02", name: "Sanjay Place (Agra)", aqi: 295, riskLevel: "VERY_POOR" },
+  { id: "BOM-W-14", name: "Kurla West Arterial (Mumbai)", aqi: 295, riskLevel: "VERY_POOR" },
+  { id: "BLR-W-005", name: "Whitefield Tech Park (Bengaluru)", aqi: 290, riskLevel: "VERY_POOR" },
+  { id: "HYD-W-08", name: "Charminar Heritage Zone (Hyderabad)", aqi: 290, riskLevel: "VERY_POOR" },
+  { id: "W-12", name: "Punjabi Bagh West (Delhi)", aqi: 285, riskLevel: "VERY_POOR" },
+  { id: "MAA-W-01", name: "Manali Industrial Zone (Chennai)", aqi: 280, riskLevel: "VERY_POOR" },
+  { id: "CCU-W-05", name: "Rabindra Bharati University (Kolkata)", aqi: 280, riskLevel: "VERY_POOR" },
+  { id: "BOM-W-33", name: "Andheri MIDC (Mumbai)", aqi: 280, riskLevel: "VERY_POOR" },
+  { id: "RAJ-W-01", name: "Mansarovar Sector 3 (Jaipur)", aqi: 275, riskLevel: "VERY_POOR" },
+  { id: "BOM-W-04", name: "BKC Bandra Commercial (Mumbai)", aqi: 275, riskLevel: "VERY_POOR" },
+  { id: "DEL-W-41", name: "Patparganj Industrial (Delhi)", aqi: 270, riskLevel: "VERY_POOR" },
+  { id: "NCR-W-11", name: "Gurugram Cyber City (NCR)", aqi: 265, riskLevel: "VERY_POOR" },
+  { id: "HYD-W-02", name: "Zoo Park Corridor (Hyderabad)", aqi: 260, riskLevel: "VERY_POOR" },
+  { id: "BOM-W-19", name: "Thane West Junction (Mumbai)", aqi: 260, riskLevel: "VERY_POOR" },
+  { id: "MAA-W-09", name: "Ambattur Industrial Estate (Chennai)", aqi: 255, riskLevel: "VERY_POOR" },
+  { id: "BLR-W-12", name: "Marathahalli Junction (Bengaluru)", aqi: 250, riskLevel: "POOR" },
+  { id: "BLR-W-002", name: "Indiranagar Station (Bengaluru)", aqi: 240, riskLevel: "POOR" },
+  { id: "GUJ-W-04", name: "Surat Varachha Ring Road (Surat)", aqi: 240, riskLevel: "POOR" },
+  { id: "CCU-W-01", name: "Victoria Memorial Zone (Kolkata)", aqi: 225, riskLevel: "POOR" },
+  { id: "BLR-W-18", name: "Rajajinagar 1st Block (Bengaluru)", aqi: 220, riskLevel: "POOR" },
+  { id: "HYD-W-01", name: "Sanathnagar Industrial (Hyderabad)", aqi: 215, riskLevel: "POOR" },
+  { id: "W-22", name: "R.K. Puram Sector 5 (Delhi)", aqi: 210, riskLevel: "POOR" },
+  { id: "BOM-W-40", name: "Malad West Station (Mumbai)", aqi: 210, riskLevel: "POOR" },
+  { id: "LKO-W-10", name: "Gomti Nagar Extension (Lucknow)", aqi: 210, riskLevel: "POOR" },
+  { id: "BLR-W-09", name: "Hebbal Flyover (Bengaluru)", aqi: 205, riskLevel: "POOR" },
+
+  // MODERATE (< 200 AQI)
+  { id: "BLR-W-15", name: "Koramangala 4th Block (Bengaluru)", aqi: 195, riskLevel: "MODERATE" },
+  { id: "DEL-W-55", name: "Najafgarh Residential (Delhi)", aqi: 190, riskLevel: "MODERATE" },
+  { id: "HYD-W-11", name: "Begumpet Airport Zone (Hyderabad)", aqi: 185, riskLevel: "MODERATE" },
+  { id: "GUJ-W-09", name: "Satellite Area (Ahmedabad)", aqi: 185, riskLevel: "MODERATE" },
+  { id: "W-09", name: "Mandir Marg Residential (Delhi)", aqi: 180, riskLevel: "MODERATE" },
+  { id: "BLR-W-21", name: "Electronic City Phase 1 (Bengaluru)", aqi: 175, riskLevel: "MODERATE" },
+  { id: "MAA-W-14", name: "Kodambakkam High Road (Chennai)", aqi: 175, riskLevel: "MODERATE" },
+  { id: "LKO-W-01", name: "Hazratganj Market (Lucknow)", aqi: 175, riskLevel: "MODERATE" },
+  { id: "CCU-W-09", name: "Salt Lake Sector V (Kolkata)", aqi: 170, riskLevel: "MODERATE" },
+  { id: "BLR-W-004", name: "BTM Layout Ring Road (Bengaluru)", aqi: 165, riskLevel: "MODERATE" },
+  { id: "BOM-W-52", name: "Borivali East National Park (Mumbai)", aqi: 165, riskLevel: "MODERATE" },
+  { id: "DEL-W-60", name: "Lodhi Road Institutional (Delhi)", aqi: 160, riskLevel: "MODERATE" },
+  { id: "MAA-W-05", name: "Velachery Main Road (Chennai)", aqi: 160, riskLevel: "MODERATE" },
+  { id: "CCU-W-14", name: "Fort William Esplanade (Kolkata)", aqi: 155, riskLevel: "MODERATE" },
+  { id: "HYD-W-20", name: "Gachibowli IT Corridor (Hyderabad)", aqi: 150, riskLevel: "MODERATE" },
+  { id: "BOM-W-01", name: "Colaba Waterfront (Mumbai)", aqi: 150, riskLevel: "MODERATE" },
+  { id: "BLR-W-30", name: "Yelahanka New Town (Bengaluru)", aqi: 145, riskLevel: "MODERATE" },
+  { id: "BOM-W-11", name: "Worli Sea Face (Mumbai)", aqi: 140, riskLevel: "MODERATE" },
+  { id: "MAA-W-02", name: "Alandur Transport Hub (Chennai)", aqi: 140, riskLevel: "MODERATE" },
+  { id: "BLR-W-25", name: "Jayanagar 4th Block (Bengaluru)", aqi: 135, riskLevel: "MODERATE" },
+  { id: "HYD-W-15", name: "Jubilee Hills Checkpost (Hyderabad)", aqi: 135, riskLevel: "MODERATE" },
+  { id: "MAA-W-08", name: "Royapettah Metro Zone (Chennai)", aqi: 130, riskLevel: "MODERATE" },
+  { id: "BLR-W-001", name: "CBD Station Ward (Bengaluru)", aqi: 110, riskLevel: "MODERATE" }
 ];
 
 export const mockHotspots: Hotspot[] = [
-  { id: "HS-801", ward: "Okhla Phase II", lat: 28.5308, lng: 77.2713, aqi: 390, severity: "CRITICAL" },
-  { id: "HS-802", ward: "Anand Vihar", lat: 28.6469, lng: 77.3160, aqi: 342, severity: "CRITICAL" },
-  { id: "HS-803", ward: "Punjabi Bagh", lat: 28.6683, lng: 77.1260, aqi: 285, severity: "HIGH" },
-  { id: "HS-804", ward: "Wazirpur Sector B", lat: 28.6988, lng: 77.1654, aqi: 260, severity: "HIGH" }
+  { id: "HS-801", ward: "Okhla Phase II (Delhi)", lat: 28.5308, lng: 77.2713, aqi: 390, severity: "CRITICAL" },
+  { id: "HS-805", ward: "Talkatora (Lucknow)", lat: 26.8389, lng: 80.8926, aqi: 365, severity: "CRITICAL" },
+  { id: "HS-802", ward: "Anand Vihar (Delhi)", lat: 28.6469, lng: 77.3160, aqi: 342, severity: "CRITICAL" },
+  { id: "HS-806", ward: "Maninagar (Ahmedabad)", lat: 22.9972, lng: 72.6008, aqi: 330, severity: "CRITICAL" },
+  { id: "HS-BLR-001", ward: "Peenya Industrial (Bengaluru)", lat: 13.0285, lng: 77.5186, aqi: 315, severity: "CRITICAL" },
+  { id: "HS-807", ward: "Navi Mumbai (Mumbai)", lat: 19.1412, lng: 73.0089, aqi: 310, severity: "CRITICAL" },
+  { id: "HS-808", ward: "Ballygunge (Kolkata)", lat: 22.5280, lng: 88.3659, aqi: 305, severity: "CRITICAL" },
+  { id: "HS-MAA-001", ward: "Manali Industrial (Chennai)", lat: 13.1667, lng: 80.2667, aqi: 280, severity: "HIGH" },
+  { id: "HS-803", ward: "Punjabi Bagh (Delhi)", lat: 28.6683, lng: 77.1260, aqi: 285, severity: "HIGH" }
 ];
 
 export const mockTrendData = [

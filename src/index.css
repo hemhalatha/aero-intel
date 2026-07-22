@@ -30,6 +30,13 @@
   font-family: inherit !important;
 }
 
+.custom-station-pin, .custom-hotspot-pin {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+
 .leaflet-popup-content-wrapper {
   background: #FFFFFF !important;
   color: #0F172A !important;

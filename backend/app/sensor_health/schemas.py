@@ -1,14 +1,16 @@
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum
 
 from pydantic import BaseModel, Field
 
 
-class SensorHealthStatus(StrEnum):
+
+class SensorHealthStatus(str, Enum):
     ONLINE = "ONLINE"
     DELAYED = "DELAYED"
     DEGRADED = "DEGRADED"
     OFFLINE = "OFFLINE"
+
 
 
 class SensorHealthSnapshot(BaseModel):

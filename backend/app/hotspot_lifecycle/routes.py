@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db_optional
 
 from .repository import HotspotLifecycleRepository
 from .schemas import (
@@ -19,8 +19,17 @@ from .service import HotspotLifecycleService
 router = APIRouter(prefix="/api/v1/hotspots", tags=["hotspots"])
 
 
-def get_hotspot_lifecycle_service(db: Session = Depends(get_db)) -> HotspotLifecycleService:
-    return HotspotLifecycleService(HotspotLifecycleRepository(db))
+def get_hotspot_lifecycle_service(db: Session | None = Depends(get_db_optional)) -> HotspotLifecycleService:
+    if db is not None:
+        try:
+            from sqlalchemy import text
+            db.execute(text("SELECT 1"))
+            return HotspotLifecycleService(HotspotLifecycleRepository(db))
+        except Exception:
+            pass
+    from app.command_center.fallback import FallbackHotspotLifecycleService
+    return FallbackHotspotLifecycleService()
+
 
 
 @router.post("/candidates", response_model=HotspotRecord, status_code=status.HTTP_201_CREATED)

@@ -1,88 +1,322 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Bot } from 'lucide-react';
-import { mockAttributionData } from '../mock/data';
+import { Bot, RefreshCw, CheckCircle2 } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
+type AttributionRanking = {
+  source: string;
+  score: number;
+};
+
+type AttributionApiResponse = {
+  hotspot_id: string;
+  primary_source: string;
+  confidence: number;
+  secondary_sources: AttributionRanking[];
+  rankings: AttributionRanking[];
+};
+
+type ExplanationApiResponse = {
+  hotspot_id: string;
+  primary_source: string;
+  confidence: number;
+  headline: string;
+  summary: string;
+  evidence: string[];
+};
+
+const SOURCE_COLORS: Record<string, string> = {
+  'Construction Dust': '#FFB800',
+  'Vehicular Emission': '#00F0FF',
+  'Vehicular Pollution': '#00F0FF',
+  'Industrial Emission': '#FF4D4D',
+  'Road Dust': '#A855F7',
+  'Biomass Burning': '#10B981',
+};
+
+const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any }> = {
+  'HS-801': {
+    name: 'Okhla Phase II (Delhi NCR)',
+    ward: 'W-17 (Delhi)',
+    bundle: {
+      hotspot_id: 'HS-801',
+      ward_id: 'W-17',
+      traffic: { density_index: 0.92, congestion_level: 'critical' },
+      construction: { active_permits_within_500m: 5, dust_complaints: 24 },
+      industry: { nearby_units_count: 2, stack_emission_flag: true },
+      satellite: { aerosol_optical_depth: 0.88, dust_signature_detected: true },
+      wind_direction: 315.0,
+      wind_speed: 14.0,
+      pm25: 240.0,
+    },
+  },
+  'HS-805': {
+    name: 'Talkatora Industrial (Lucknow)',
+    ward: 'LKO-W-04 (Lucknow)',
+    bundle: {
+      hotspot_id: 'HS-805',
+      ward_id: 'LKO-W-04',
+      traffic: { density_index: 0.65, congestion_level: 'moderate' },
+      construction: { active_permits_within_500m: 1, dust_complaints: 4 },
+      industry: { nearby_units_count: 8, stack_emission_flag: true },
+      satellite: { aerosol_optical_depth: 0.79, dust_signature_detected: false },
+      wind_direction: 280.0,
+      wind_speed: 10.0,
+      pm25: 210.0,
+    },
+  },
+  'HS-802': {
+    name: 'Anand Vihar Transport Hub (Delhi NCR)',
+    ward: 'W-04 (Delhi)',
+    bundle: {
+      hotspot_id: 'HS-802',
+      ward_id: 'W-04',
+      traffic: { density_index: 0.95, congestion_level: 'critical' },
+      construction: { active_permits_within_500m: 2, dust_complaints: 8 },
+      industry: { nearby_units_count: 0, stack_emission_flag: false },
+      satellite: { aerosol_optical_depth: 0.82, dust_signature_detected: true },
+      wind_direction: 290.0,
+      wind_speed: 12.0,
+      pm25: 220.0,
+    },
+  },
+  'HS-BLR-001': {
+    name: 'Peenya Industrial Station (Bengaluru)',
+    ward: 'BLR-W-003 (Bengaluru)',
+    bundle: {
+      hotspot_id: 'HS-BLR-001',
+      ward_id: 'BLR-W-003',
+      traffic: { density_index: 0.85, congestion_level: 'heavy' },
+      construction: { active_permits_within_500m: 3, dust_complaints: 12 },
+      industry: { nearby_units_count: 1, stack_emission_flag: false },
+      satellite: { aerosol_optical_depth: 0.62, dust_signature_detected: true },
+      wind_direction: 225.0,
+      wind_speed: 12.5,
+      pm25: 185.0,
+    },
+  },
+  'HS-807': {
+    name: 'Navi Mumbai Rabale (Mumbai MMR)',
+    ward: 'BOM-W-09 (Mumbai)',
+    bundle: {
+      hotspot_id: 'HS-807',
+      ward_id: 'BOM-W-09',
+      traffic: { density_index: 0.88, congestion_level: 'heavy' },
+      construction: { active_permits_within_500m: 4, dust_complaints: 16 },
+      industry: { nearby_units_count: 3, stack_emission_flag: true },
+      satellite: { aerosol_optical_depth: 0.71, dust_signature_detected: true },
+      wind_direction: 240.0,
+      wind_speed: 16.0,
+      pm25: 195.0,
+    },
+  },
+  'HS-MAA-001': {
+    name: 'Manali Industrial Zone (Chennai)',
+    ward: 'MAA-W-01 (Chennai)',
+    bundle: {
+      hotspot_id: 'HS-MAA-001',
+      ward_id: 'MAA-W-01',
+      traffic: { density_index: 0.60, congestion_level: 'moderate' },
+      construction: { active_permits_within_500m: 1, dust_complaints: 2 },
+      industry: { nearby_units_count: 6, stack_emission_flag: true },
+      satellite: { aerosol_optical_depth: 0.68, dust_signature_detected: false },
+      wind_direction: 110.0,
+      wind_speed: 18.0,
+      pm25: 175.0,
+    },
+  },
+};
 
 export const Attribution: React.FC = () => {
+  const [selectedHotspotKey, setSelectedHotspotKey] = useState<string>('HS-801');
+  const [attribution, setAttribution] = useState<AttributionApiResponse | null>(null);
+  const [explanation, setExplanation] = useState<ExplanationApiResponse | null>(null);
+  const [isLive, setIsLive] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadAttributionData = async (hotspotKey: string) => {
+    setLoading(true);
+    const targetConfig = HOTSPOT_BUNDLES[hotspotKey] || HOTSPOT_BUNDLES['HS-801'];
+    const sampleBundle = targetConfig.bundle;
+
+    try {
+      const [attrRes, expRes] = await Promise.all([
+        fetch(`${API_BASE}/api/v1/attributions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sampleBundle),
+        }),
+        fetch(`${API_BASE}/api/v1/explanations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sampleBundle),
+        }),
+      ]);
+
+      if (attrRes.ok && expRes.ok) {
+        const attrData = await attrRes.json();
+        const expData = await expRes.json();
+        setAttribution(attrData);
+        setExplanation(expData);
+        setIsLive(true);
+      } else {
+        throw new Error('API response failed');
+      }
+    } catch {
+      setIsLive(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAttributionData(selectedHotspotKey);
+  }, [selectedHotspotKey]);
+
+  const chartData = attribution
+    ? attribution.rankings
+        .filter((r) => r.score > 0)
+        .map((r) => ({
+          source: r.source,
+          percentage: Math.round(r.score),
+          color: SOURCE_COLORS[r.source] || '#3B82F6',
+        }))
+    : [];
+
   return (
     <div className="px-8 py-6 space-y-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="pb-4 border-b border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-900 mb-1">Source Attribution Engine</h1>
-        <p className="text-sm font-medium text-slate-500">
-          Statistical apportionment of fugitive emissions by source category using wind dispersion vectors
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">Geospatial Source Attribution Engine</h1>
+          <p className="text-sm font-medium text-slate-500">
+            Multi-modal evidence scoring & statistical apportionment across urban emission categories
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={selectedHotspotKey}
+            onChange={(e) => setSelectedHotspotKey(e.target.value)}
+            className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold bg-white text-slate-800 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            {Object.entries(HOTSPOT_BUNDLES).map(([key, item]) => (
+              <option key={key} value={key}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+          <span
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+              isLive ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'
+            }`}
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            {isLive ? 'Live FastAPI Connected (POST /api/v1/attributions)' : 'Seeded Standby Data'}
+          </span>
+          <button onClick={() => loadAttributionData(selectedHotspotKey)} className="ui-button-secondary">
+            <RefreshCw className={`h-4 w-4 text-slate-500 ${loading ? 'animate-spin' : ''}`} />
+            <span>Re-Run AI Attribution</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart Card */}
         <div className="ui-card space-y-4">
-          <h2 className="text-base font-semibold text-slate-900">Pollution Source Share</h2>
-
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <RePieChart>
-                <Pie
-                  data={mockAttributionData}
-                  dataKey="percentage"
-                  nameKey="source"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={65}
-                  outerRadius={95}
-                  paddingAngle={4}
-                >
-                  {mockAttributionData.map((entry) => (
-                    <Cell key={entry.source} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#E2E8F0',
-                    borderRadius: '12px',
-                    color: '#0F172A',
-                    fontWeight: 600,
-                  }}
-                />
-              </RePieChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between items-center">
+            <h2 className="text-base font-semibold text-slate-900">Attributed Source Share</h2>
+            {attribution && (
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+                Primary: {attribution.primary_source}
+              </span>
+            )}
           </div>
-
-          <div className="grid grid-cols-3 gap-3 pt-2">
-            {mockAttributionData.map((item) => (
-              <div key={item.source} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                <div className="text-xs font-medium text-slate-500 truncate">{item.source}</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: item.color }}>
-                  {item.percentage}%
-                </div>
+          <div className="h-64 flex items-center justify-center">
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <RePieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={4}
+                    dataKey="percentage"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="#FFFFFF" strokeWidth={2} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(val: number) => [`${val}%`, 'Apportionment Share']}
+                    contentStyle={{
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E2E8F0',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                      color: '#0F172A',
+                    }}
+                  />
+                </RePieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-xs text-slate-400 font-mono">Loading Attribution Data...</div>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-xs font-medium">
+            {chartData.map((item) => (
+              <div key={item.source} className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-slate-600 truncate">{item.source}:</span>
+                <span className="font-bold text-slate-900">{item.percentage}%</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* AI Explanation & Confidence */}
-        <div className="space-y-6">
-          <div className="ui-card space-y-3">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Confidence Metric</h2>
-            <div className="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden border border-slate-200">
-              <div className="bg-blue-600 h-full rounded-full" style={{ width: '85%' }}></div>
-            </div>
-            <div className="flex justify-between text-xs font-semibold text-slate-700">
-              <span>Statistical Variance: ±3.2%</span>
-              <span className="text-blue-600 font-bold">85% High Confidence</span>
-            </div>
+        {/* AI Natural Explanation Card */}
+        <div className="ui-card space-y-4 bg-slate-900 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+            <Bot className="h-5 w-5 text-blue-400" />
+            <h2 className="text-base font-semibold text-white">Explainable AI (XAI) Natural Language Summary</h2>
           </div>
 
-          <div className="ui-card space-y-3">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-600" />
-              <h2 className="text-base font-semibold text-slate-900">AI Diagnostic Summary</h2>
+          {explanation ? (
+            <div className="space-y-4">
+              <div className="p-3.5 bg-slate-800/80 rounded-xl border border-slate-700/80">
+                <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block mb-1">
+                  Automated Headline
+                </span>
+                <p className="text-sm font-bold text-white leading-snug">{explanation.headline}</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Diagnostic Reasoning Summary
+                </span>
+                <p className="text-xs text-slate-300 leading-relaxed font-normal">{explanation.summary}</p>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Multi-Modal Supporting Evidence
+                </span>
+                <div className="space-y-1.5">
+                  {explanation.evidence.map((ev, i) => (
+                    <div key={i} className="text-xs text-slate-300 flex items-start gap-2 bg-slate-800/40 p-2 rounded-lg border border-slate-700/50">
+                      <span className="text-blue-400 font-bold">•</span>
+                      <span>{ev}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <p className="text-sm font-normal text-slate-700 leading-relaxed bg-slate-50 p-4 border border-slate-200 rounded-xl">
-              Unmitigated dust from 12,000 sq.m construction site at Permit #CNST-2026-8891 combined with 14 km/h SSW wind vector accounts for 85% of PM10 spike at Ward 17 sensor station. Vehicular freight idling contributes 10% secondary aerosol volume.
-            </p>
-          </div>
+          ) : (
+            <div className="p-8 text-center text-xs font-mono text-slate-400">Loading AI Natural Explanation...</div>
+          )}
         </div>
       </div>
     </div>
