@@ -84,8 +84,8 @@ Key backend principles:
 |   |-- data/                         # Seed datasets
 |   |-- scripts/                      # Reproducible seed loaders
 |   `-- tests/                        # Backend tests
-|-- frontend/                         # Wrapper for the expected frontend workflow
-|-- src/                              # Active React/Vite frontend source
+|-- frontend/                         # React/Vite command-center frontend
+|   |-- src/                          # Active frontend source
 |-- DESIGN-apple.md                   # Frontend design system
 |-- render.yaml                       # Render deployment blueprint
 |-- .env.example                      # Safe environment template
@@ -216,11 +216,11 @@ http://127.0.0.1:8000
 
 ### Frontend Setup
 
-The active Vite app lives at the repository root, and `frontend/` provides the expected workflow wrapper.
+The Vite app lives in `frontend/`.
 
 ```powershell
 cd frontend
-npm run install:root
+npm install
 npm run dev
 ```
 
@@ -266,7 +266,7 @@ GET http://127.0.0.1:8000/api/v1/hotspots?status=ACTIVE
 The repository includes a Render Blueprint in `render.yaml` with:
 
 - `aerointel-api`: FastAPI web service from `backend/`
-- `aerointel-command-center`: static Vite frontend from the repository root
+- `aerointel-command-center`: static Vite frontend from `frontend/`
 - `aerointel-db`: managed PostgreSQL database
 
 Production environment variables:

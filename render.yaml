@@ -16,7 +16,7 @@ services:
 
   - type: static
     name: aerointel-command-center
-    rootDir: .
+    rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
