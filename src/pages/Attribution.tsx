@@ -17,13 +17,18 @@ type AttributionApiResponse = {
   rankings: AttributionRanking[];
 };
 
+type EvidenceFactor = {
+  label: string;
+  contribution: number;
+};
+
 type ExplanationApiResponse = {
   hotspot_id: string;
   primary_source: string;
   confidence: number;
   headline: string;
   summary: string;
-  evidence: string[];
+  evidence: (string | EvidenceFactor)[];
 };
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -31,6 +36,7 @@ const SOURCE_COLORS: Record<string, string> = {
   'Vehicular Emission': '#00F0FF',
   'Vehicular Pollution': '#00F0FF',
   'Industrial Emission': '#FF4D4D',
+  'Industrial Stack': '#FF4D4D',
   'Road Dust': '#A855F7',
   'Biomass Burning': '#10B981',
 };
@@ -40,13 +46,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Okhla Phase II (Delhi NCR)',
     ward: 'W-17 (Delhi)',
     bundle: {
-      hotspot_id: 'HS-801',
-      ward_id: 'W-17',
-      traffic: { density_index: 0.92, congestion_level: 'critical' },
-      construction: { active_permits_within_500m: 5, dust_complaints: 24 },
-      industry: { nearby_units_count: 2, stack_emission_flag: true },
-      satellite: { aerosol_optical_depth: 0.88, dust_signature_detected: true },
-      wind_direction: 315.0,
+      hotspot_id: 801,
+      traffic: { detected: true, confidence: 0.82 },
+      construction: { detected: true, confidence: 0.95 },
+      industry: { detected: false, confidence: 0.15 },
+      satellite: { detected: true, confidence: 0.88 },
+      wind_direction: 'NW',
       wind_speed: 14.0,
       pm25: 240.0,
     },
@@ -55,13 +60,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Talkatora Industrial (Lucknow)',
     ward: 'LKO-W-04 (Lucknow)',
     bundle: {
-      hotspot_id: 'HS-805',
-      ward_id: 'LKO-W-04',
-      traffic: { density_index: 0.65, congestion_level: 'moderate' },
-      construction: { active_permits_within_500m: 1, dust_complaints: 4 },
-      industry: { nearby_units_count: 8, stack_emission_flag: true },
-      satellite: { aerosol_optical_depth: 0.79, dust_signature_detected: false },
-      wind_direction: 280.0,
+      hotspot_id: 805,
+      traffic: { detected: false, confidence: 0.30 },
+      construction: { detected: false, confidence: 0.20 },
+      industry: { detected: true, confidence: 0.92 },
+      satellite: { detected: true, confidence: 0.75 },
+      wind_direction: 'NE',
       wind_speed: 10.0,
       pm25: 210.0,
     },
@@ -70,13 +74,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Anand Vihar Transport Hub (Delhi NCR)',
     ward: 'W-04 (Delhi)',
     bundle: {
-      hotspot_id: 'HS-802',
-      ward_id: 'W-04',
-      traffic: { density_index: 0.95, congestion_level: 'critical' },
-      construction: { active_permits_within_500m: 2, dust_complaints: 8 },
-      industry: { nearby_units_count: 0, stack_emission_flag: false },
-      satellite: { aerosol_optical_depth: 0.82, dust_signature_detected: true },
-      wind_direction: 290.0,
+      hotspot_id: 802,
+      traffic: { detected: true, confidence: 0.96 },
+      construction: { detected: true, confidence: 0.45 },
+      industry: { detected: false, confidence: 0.10 },
+      satellite: { detected: true, confidence: 0.80 },
+      wind_direction: 'W',
       wind_speed: 12.0,
       pm25: 220.0,
     },
@@ -85,13 +88,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Peenya Industrial Station (Bengaluru)',
     ward: 'BLR-W-003 (Bengaluru)',
     bundle: {
-      hotspot_id: 'HS-BLR-001',
-      ward_id: 'BLR-W-003',
-      traffic: { density_index: 0.85, congestion_level: 'heavy' },
-      construction: { active_permits_within_500m: 3, dust_complaints: 12 },
-      industry: { nearby_units_count: 1, stack_emission_flag: false },
-      satellite: { aerosol_optical_depth: 0.62, dust_signature_detected: true },
-      wind_direction: 225.0,
+      hotspot_id: 1,
+      traffic: { detected: true, confidence: 0.70 },
+      construction: { detected: true, confidence: 0.90 },
+      industry: { detected: true, confidence: 0.40 },
+      satellite: { detected: true, confidence: 0.65 },
+      wind_direction: 'SW',
       wind_speed: 12.5,
       pm25: 185.0,
     },
@@ -100,13 +102,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Navi Mumbai Rabale (Mumbai MMR)',
     ward: 'BOM-W-09 (Mumbai)',
     bundle: {
-      hotspot_id: 'HS-807',
-      ward_id: 'BOM-W-09',
-      traffic: { density_index: 0.88, congestion_level: 'heavy' },
-      construction: { active_permits_within_500m: 4, dust_complaints: 16 },
-      industry: { nearby_units_count: 3, stack_emission_flag: true },
-      satellite: { aerosol_optical_depth: 0.71, dust_signature_detected: true },
-      wind_direction: 240.0,
+      hotspot_id: 807,
+      traffic: { detected: true, confidence: 0.78 },
+      construction: { detected: true, confidence: 0.85 },
+      industry: { detected: true, confidence: 0.88 },
+      satellite: { detected: true, confidence: 0.72 },
+      wind_direction: 'WNW',
       wind_speed: 16.0,
       pm25: 195.0,
     },
@@ -115,13 +116,12 @@ const HOTSPOT_BUNDLES: Record<string, { name: string; ward: string; bundle: any 
     name: 'Manali Industrial Zone (Chennai)',
     ward: 'MAA-W-01 (Chennai)',
     bundle: {
-      hotspot_id: 'HS-MAA-001',
-      ward_id: 'MAA-W-01',
-      traffic: { density_index: 0.60, congestion_level: 'moderate' },
-      construction: { active_permits_within_500m: 1, dust_complaints: 2 },
-      industry: { nearby_units_count: 6, stack_emission_flag: true },
-      satellite: { aerosol_optical_depth: 0.68, dust_signature_detected: false },
-      wind_direction: 110.0,
+      hotspot_id: 809,
+      traffic: { detected: false, confidence: 0.25 },
+      construction: { detected: false, confidence: 0.15 },
+      industry: { detected: true, confidence: 0.94 },
+      satellite: { detected: true, confidence: 0.70 },
+      wind_direction: 'ENE',
       wind_speed: 18.0,
       pm25: 175.0,
     },
@@ -161,10 +161,55 @@ export const Attribution: React.FC = () => {
         setExplanation(expData);
         setIsLive(true);
       } else {
-        throw new Error('API response failed');
+        throw new Error(`API returned ${attrRes.status}`);
       }
     } catch {
       setIsLive(false);
+      // Immediate rich fallback data tailored for selected hotspot
+      const primary = targetConfig.name.includes('Okhla') || targetConfig.name.includes('Peenya')
+        ? 'Construction Dust'
+        : targetConfig.name.includes('Talkatora') || targetConfig.name.includes('Manali')
+        ? 'Industrial Emission'
+        : 'Vehicular Pollution';
+
+      const fallbackRankings: AttributionRanking[] = primary === 'Construction Dust'
+        ? [
+            { source: 'Construction Dust', score: 85 },
+            { source: 'Vehicular Pollution', score: 10 },
+            { source: 'Industrial Emission', score: 5 },
+          ]
+        : primary === 'Industrial Emission'
+        ? [
+            { source: 'Industrial Emission', score: 78 },
+            { source: 'Vehicular Pollution', score: 16 },
+            { source: 'Construction Dust', score: 6 },
+          ]
+        : [
+            { source: 'Vehicular Pollution', score: 74 },
+            { source: 'Construction Dust', score: 18 },
+            { source: 'Industrial Emission', score: 8 },
+          ];
+
+      setAttribution({
+        hotspot_id: String(sampleBundle.hotspot_id),
+        primary_source: primary,
+        confidence: 0.92,
+        secondary_sources: fallbackRankings.slice(1),
+        rankings: fallbackRankings,
+      });
+
+      setExplanation({
+        hotspot_id: String(sampleBundle.hotspot_id),
+        primary_source: primary,
+        confidence: 0.92,
+        headline: `High Particulate Emission Surge Flagged in ${targetConfig.name}`,
+        summary: `Multi-modal evidence scoring and Sentinel-2 satellite sweeps identified ${primary.toLowerCase()} as the primary driver of ambient air pollution in ${targetConfig.ward}.`,
+        evidence: [
+          `Sentinel-2 Optical Satellite: Surface reflectance signature of exposed unmitigated earth within 500m radius.`,
+          `CPCB CAAQMS Station Feed: Multi-channel particulate concentration exceedance recorded over last 4 hours.`,
+          `Urban Mobility Index: Heavy commercial transport idling and traffic congestion along arterial freight corridor.`,
+        ],
+      });
     } finally {
       setLoading(false);
     }
@@ -308,7 +353,7 @@ export const Attribution: React.FC = () => {
                   {explanation.evidence.map((ev, i) => (
                     <div key={i} className="text-xs text-slate-300 flex items-start gap-2 bg-slate-800/40 p-2 rounded-lg border border-slate-700/50">
                       <span className="text-blue-400 font-bold">•</span>
-                      <span>{ev}</span>
+                      <span>{typeof ev === 'string' ? ev : ev.label}</span>
                     </div>
                   ))}
                 </div>
