@@ -61,6 +61,9 @@ export interface Recommendation {
   department: string;
   costEstimate: string;
   applied: boolean;
+  evidence?: string;
+  time?: string;
+  reductionValue?: number;
 }
 
 export interface Advisory {
